@@ -1,0 +1,85 @@
+<!-- Sidebar Navigation -->
+<aside id="sidebar"
+    class="sidebar-transition bg-white w-64 border-r border-gray-200 flex flex-col flex-shrink-0 fixed md:relative h-full z-50 transform -translate-x-full md:translate-x-0">
+    
+    <!-- Logo/Brand Section -->
+    <div class="p-4 border-b border-gray-200 flex justify-between items-center">
+        <div class="flex items-center space-x-2">
+            <div class="w-8 h-8 bg-primary-500 rounded-lg flex items-center justify-center">
+                <i class="fas fa-store text-white text-sm"></i>
+            </div>
+            <span class="text-xl font-bold text-gray-800">Store ERP</span>
+        </div>
+        <button id="close-sidebar" class="p-2 rounded-md text-gray-600 md:hidden">
+            <i class="fas fa-times"></i>
+        </button>
+    </div>
+
+    <!-- Menu Items -->
+    <nav class="flex-1 p-4 space-y-2">
+        <a href="{% url 'dashboard' %}"
+           class="flex items-center space-x-3 p-2 rounded-lg 
+           {% if request.resolver_match.url_name == 'dashboard' %}bg-primary-50 text-primary-600{% else %}text-gray-600 hover:bg-gray-100 hover:text-gray-800{% endif %}">
+            <i class="fas fa-chart-pie w-5"></i>
+            <span>Dashboard</span>
+        </a>
+
+        <a href="{% url 'inventory' %}"
+           class="flex items-center space-x-3 p-2 rounded-lg 
+           {% if request.resolver_match.url_name == 'inventory' %}bg-primary-50 text-primary-600{% else %}text-gray-600 hover:bg-gray-100 hover:text-gray-800{% endif %}">
+            <i class="fas fa-boxes w-5"></i>
+            <span>Inventory</span>
+        </a>
+
+        <a href="{% url 'purchases' %}"
+           class="flex items-center space-x-3 p-2 rounded-lg 
+           {% if request.resolver_match.url_name == 'purchases' %}bg-primary-50 text-primary-600{% else %}text-gray-600 hover:bg-gray-100 hover:text-gray-800{% endif %}">
+            <i class="fas fa-shopping-cart w-5"></i>
+            <span>Purchases</span>
+        </a>
+
+        <a href="{% url 'sales' %}"
+           class="flex items-center space-x-3 p-2 rounded-lg 
+           {% if request.resolver_match.url_name == 'sales' %}bg-primary-50 text-primary-600{% else %}text-gray-600 hover:bg-gray-100 hover:text-gray-800{% endif %}">
+            <i class="fas fa-credit-card w-5"></i>
+            <span>Sales</span>
+        </a>
+
+        <a href="{% url 'expenses' %}"
+           class="flex items-center space-x-3 p-2 rounded-lg 
+           {% if request.resolver_match.url_name == 'expenses' %}bg-primary-50 text-primary-600{% else %}text-gray-600 hover:bg-gray-100 hover:text-gray-800{% endif %}">
+            <i class="fas fa-money-bill-wave w-5"></i>
+            <span>Expenses</span>
+        </a>
+
+        {% comment %}
+        <a href="{% url 'reports' %}"
+           class="flex items-center space-x-3 p-2 rounded-lg 
+           {% if request.resolver_match.url_name == 'reports' %}bg-primary-50 text-primary-600{% else %}text-gray-600 hover:bg-gray-100 hover:text-gray-800{% endif %}">
+            <i class="fas fa-chart-bar w-5"></i>
+            <span>Reports</span>
+        </a>
+
+        <a href="{% url 'settings' %}"
+           class="flex items-center space-x-3 p-2 rounded-lg 
+           {% if request.resolver_match.url_name == 'settings' %}bg-primary-50 text-primary-600{% else %}text-gray-600 hover:bg-gray-100 hover:text-gray-800{% endif %}">
+            <i class="fas fa-cog w-5"></i>
+            <span>Settings</span>
+        </a>
+        {% endcomment %}
+        
+    </nav>
+
+    <!-- User Info -->
+    <div class="p-4 border-t border-gray-200">
+        <div class="flex items-center space-x-3">
+            <div class="w-10 h-10 rounded-full bg-primary-100 flex items-center justify-center">
+                <span class="text-primary-600 font-semibold">😀</span>
+            </div>
+            <div>
+                <p class="font-medium text-gray-800">Hii {{request.user.first_name}} !</p>
+                <p class="text-sm text-gray-500">Administrator</p>
+            </div>
+        </div>
+    </div>
+</aside>

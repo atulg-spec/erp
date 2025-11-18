@@ -1,0 +1,577 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block body %}
+<div class="flex-1 overflow-auto p-4 md:p-6">
+    <!-- Page Header -->
+    <div class="mb-6">
+        <h1 class="text-2xl md:text-3xl font-bold text-gray-800">Sales Management</h1>
+        <p class="text-gray-600 mt-2">Track sales, monitor profits, and manage customer transactions</p>
+    </div>
+
+    <!-- Messages -->
+    {% if messages %}
+    <div class="mb-6">
+        {% for message in messages %}
+        <div class="p-4 rounded-lg {% if message.tags == 'success' %}bg-green-100 text-green-700 border border-green-300{% else %}bg-red-100 text-red-700 border border-red-300{% endif %}">
+            {{ message }}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- Summary Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm font-medium text-gray-600">Total Sales</p>
+                    <p class="text-2xl font-bold text-gray-800 mt-1">₹{{ total_sales }}</p>
+                </div>
+                <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                    <i class="fas fa-credit-card text-blue-600 text-xl"></i>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm font-medium text-gray-600">Gross Profit</p>
+                    <p class="text-2xl font-bold text-green-600 mt-1">₹{{ total_gross_profit }}</p>
+                </div>
+                <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                    <i class="fas fa-chart-line text-green-600 text-xl"></i>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm font-medium text-gray-600">Today's Sales</p>
+                    <p class="text-2xl font-bold text-gray-800 mt-1">₹{{ today_sales }}</p>
+                </div>
+                <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
+                    <i class="fas fa-calendar-day text-purple-600 text-xl"></i>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm font-medium text-gray-600">Profit Margin</p>
+                    <p class="text-2xl font-bold text-blue-600 mt-1">{{ profit_margin }}%</p>
+                </div>
+                <div class="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center">
+                    <i class="fas fa-percentage text-orange-600 text-xl"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filters and Actions -->
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4 mb-6">
+        <form method="get" id="filterForm" class="space-y-4 md:space-y-0">
+            <div class="flex flex-col md:flex-row md:items-end gap-4">
+                <!-- Search Box -->
+                <div class="flex-1">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Search Sales</label>
+                    <div class="relative">
+                        <input type="text" name="search" value="{{ search_query }}" 
+                               placeholder="Search by category or size..." 
+                               class="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent">
+                        <i class="fas fa-search absolute left-3 top-3 text-gray-400"></i>
+                    </div>
+                </div>
+
+                <!-- Category Filter -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Category</label>
+                    <select name="category" id="categoryFilter" class="w-full md:w-48 border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-500">
+                        <option value="">All Categories</option>
+                        {% for category in categories %}
+                        <option value="{{ category.id }}" {% if category_filter == category.id|stringformat:"s" %}selected{% endif %}>
+                            {{ category.name }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <!-- Date Range -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Start Date</label>
+                    <input type="date" name="start_date" id="startDate" value="{{ start_date|default:'' }}" 
+                           class="w-full md:w-40 border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-500">
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">End Date</label>
+                    <input type="date" name="end_date" id="endDate" value="{{ end_date|default:'' }}" 
+                           class="w-full md:w-40 border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-500">
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="flex gap-2">
+                    <button type="submit" id="applyFilters" class="bg-primary-500 text-white px-6 py-2 rounded-lg hover:bg-primary-600 transition-colors flex items-center gap-2 h-10">
+                        <i class="fas fa-filter"></i>
+                        Apply
+                    </button>
+                    <a href="{% url 'sales' %}" class="bg-gray-500 text-white px-6 py-2 rounded-lg hover:bg-gray-600 transition-colors flex items-center gap-2 h-10">
+                        <i class="fas fa-redo"></i>
+                        Reset
+                    </a>
+                    <button type="button" id="newSaleBtn" class="bg-green-500 text-white px-6 py-2 rounded-lg hover:bg-green-600 transition-colors flex items-center gap-2 h-10">
+                        <i class="fas fa-plus"></i>
+                        New Sale
+                    </button>
+                </div>
+            </div>
+
+            <!-- Quick Date Range Buttons -->
+            <div class="flex flex-wrap gap-2">
+                <button type="button" id="last7Days" class="quick-date-btn px-3 py-1 text-xs border border-gray-300 rounded-md text-gray-600 hover:bg-gray-50 hover:border-primary-500 hover:text-primary-600 transition-colors">
+                    Last 7 Days
+                </button>
+                <button type="button" id="last30Days" class="quick-date-btn px-3 py-1 text-xs border border-gray-300 rounded-md text-gray-600 hover:bg-gray-50 hover:border-primary-500 hover:text-primary-600 transition-colors">
+                    Last 30 Days
+                </button>
+                <button type="button" id="last90Days" class="quick-date-btn px-3 py-1 text-xs border border-gray-300 rounded-md text-gray-600 hover:bg-gray-50 hover:border-primary-500 hover:text-primary-600 transition-colors">
+                    Last 90 Days
+                </button>
+                <button type="button" id="thisMonth" class="quick-date-btn px-3 py-1 text-xs border border-gray-300 rounded-md text-gray-600 hover:bg-gray-50 hover:border-primary-500 hover:text-primary-600 transition-colors">
+                    This Month
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Mobile Card View -->
+    <div class="mobile-card-view">
+        <div class="grid grid-cols-1 gap-4">
+            {% for sale in page_obj %}
+            <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+                <div class="flex justify-between items-start mb-3">
+                    <div>
+                        <h3 class="font-semibold text-gray-800">{{ sale.stock.category.name }} - {{ sale.stock.sizes }}</h3>
+                        <p class="text-sm text-gray-600">Sale #{{ sale.id }}</p>
+                    </div>
+                    <span class="px-2 py-1 text-xs rounded-full bg-blue-100 text-blue-800">
+                        {{ sale.sold_on|date:"M d, Y" }}
+                    </span>
+                </div>
+                
+                <div class="grid grid-cols-2 gap-4 mb-3">
+                    <div>
+                        <p class="text-sm text-gray-600">Quantity Sold</p>
+                        <p class="font-semibold">{{ sale.quantity_sold }}</p>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-600">Selling Price</p>
+                        <p class="font-semibold">₹{{ sale.selling_price|floatformat:0 }}</p>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-600">Total Amount</p>
+                        <p class="font-semibold text-green-600">₹{{ sale.total_amount|floatformat:0 }}</p>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-600">Gross Profit</p>
+                        <p class="font-semibold {% if sale.gross_profit >= 0 %}text-green-600{% else %}text-red-600{% endif %}">
+                            ₹{{ sale.gross_profit|floatformat:0 }}
+                        </p>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <p class="text-sm text-gray-600">Remaining Stock</p>
+                    <p class="font-semibold">{{ sale.stock.quantity }} units</p>
+                </div>
+
+                <div class="flex gap-2">
+                    <button class="edit-sale flex-1 bg-primary-500 text-white py-2 px-3 rounded text-sm hover:bg-primary-600 transition-colors" data-id="{{ sale.id }}">
+                        <i class="fas fa-edit mr-1"></i>Edit
+                    </button>
+                    <form method="post" class="flex-1" onsubmit="return confirm('Are you sure you want to delete this sale? Stock will be restored.');">
+                        {% csrf_token %}
+                        <input type="hidden" name="delete_sale" value="true">
+                        <input type="hidden" name="sale_id" value="{{ sale.id }}">
+                        <button type="submit" class="w-full bg-red-500 text-white py-2 px-3 rounded text-sm hover:bg-red-600 transition-colors">
+                            <i class="fas fa-trash mr-1"></i>Delete
+                        </button>
+                    </form>
+                </div>
+            </div>
+            {% empty %}
+            <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-8 text-center">
+                <i class="fas fa-credit-card text-4xl text-gray-400 mb-4"></i>
+                <h3 class="text-lg font-semibold text-gray-600 mb-2">No sales found</h3>
+                <p class="text-gray-500 mb-4">Try adjusting your search or filters to find what you're looking for.</p>
+                <button id="newSaleEmpty" class="bg-green-500 text-white px-6 py-2 rounded-lg hover:bg-green-600 transition-colors">
+                    <i class="fas fa-plus mr-2"></i>Create First Sale
+                </button>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Desktop Table View -->
+    <div class="table-view">
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+            <div class="overflow-x-auto">
+                <table class="w-full">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Sale Details</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Category</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Quantity</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Selling Price</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total Amount</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Gross Profit</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Sale Date</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                        {% for sale in page_obj %}
+                        <tr class="hover:bg-gray-50 transition-colors">
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div>
+                                    <div class="text-sm font-medium text-gray-900">#{{ sale.id }}</div>
+                                    <div class="text-sm text-gray-500">{{ sale.stock.sizes }}</div>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="text-sm font-medium text-gray-900">{{ sale.stock.category.name }}</div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="text-sm font-medium text-gray-900">{{ sale.quantity_sold }}</div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="text-sm font-medium text-gray-900">₹{{ sale.selling_price|floatformat:0 }}</div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="text-sm font-medium text-green-600">₹{{ sale.total_amount|floatformat:0 }}</div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="text-sm font-medium {% if sale.gross_profit >= 0 %}text-green-600{% else %}text-red-600{% endif %}">
+                                    ₹{{ sale.gross_profit|floatformat:0 }}
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="text-sm text-gray-900">{{ sale.sold_on|date:"M d, Y" }}</div>
+                                <div class="text-xs text-gray-500">{{ sale.sold_on|timesince }} ago</div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                <div class="flex space-x-2">
+                                    <button class="edit-sale text-primary-600 hover:text-primary-900 transition-colors" title="Edit Sale" data-id="{{ sale.id }}">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <form method="post" onsubmit="return confirm('Are you sure you want to delete this sale? Stock will be restored.');" class="inline">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="delete_sale" value="true">
+                                        <input type="hidden" name="sale_id" value="{{ sale.id }}">
+                                        <button type="submit" class="text-red-600 hover:text-red-900 transition-colors" title="Delete Sale">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="8" class="px-6 py-8 text-center">
+                                <i class="fas fa-credit-card text-4xl text-gray-400 mb-4"></i>
+                                <h3 class="text-lg font-semibold text-gray-600 mb-2">No sales found</h3>
+                                <p class="text-gray-500">Try adjusting your search or filters to find what you're looking for.</p>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Pagination -->
+    {% if page_obj.has_other_pages %}
+    <div class="mt-6 flex flex-col md:flex-row items-center justify-between gap-4">
+        <div class="text-sm text-gray-700">
+            Showing {{ page_obj.start_index }} to {{ page_obj.end_index }} of {{ page_obj.paginator.count }} sales
+        </div>
+        <div class="flex space-x-1">
+            {% if page_obj.has_previous %}
+            <a href="?page={{ page_obj.previous_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if category_filter %}&category={{ category_filter }}{% endif %}{% if start_date %}&start_date={{ start_date }}{% endif %}{% if end_date %}&end_date={{ end_date }}{% endif %}" 
+               class="px-3 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-500 hover:bg-gray-50 transition-colors">
+                Previous
+            </a>
+            {% endif %}
+
+            {% for num in page_obj.paginator.page_range %}
+                {% if page_obj.number == num %}
+                <span class="px-3 py-2 border border-primary-500 bg-primary-500 text-white rounded-md text-sm font-medium">
+                    {{ num }}
+                </span>
+                {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                <a href="?page={{ num }}{% if search_query %}&search={{ search_query }}{% endif %}{% if category_filter %}&category={{ category_filter }}{% endif %}{% if start_date %}&start_date={{ start_date }}{% endif %}{% if end_date %}&end_date={{ end_date }}{% endif %}" 
+                   class="px-3 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-500 hover:bg-gray-50 transition-colors">
+                    {{ num }}
+                </a>
+                {% endif %}
+            {% endfor %}
+
+            {% if page_obj.has_next %}
+            <a href="?page={{ page_obj.next_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if category_filter %}&category={{ category_filter }}{% endif %}{% if start_date %}&start_date={{ start_date }}{% endif %}{% if end_date %}&end_date={{ end_date }}{% endif %}" 
+               class="px-3 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-500 hover:bg-gray-50 transition-colors">
+                Next
+            </a>
+            {% endif %}
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Quick Stats Panel -->
+<div class="fixed bottom-4 right-4 bg-white rounded-lg shadow-lg border border-gray-200 p-4 max-w-xs">
+    <h4 class="text-sm font-semibold text-gray-800 mb-3">Sales Insights</h4>
+    <div class="space-y-2">
+        <div class="flex justify-between text-sm">
+            <span class="text-gray-600">This Week:</span>
+            <span class="font-medium text-green-600">₹{{ week_sales }}</span>
+        </div>
+        <div class="flex justify-between text-sm">
+            <span class="text-gray-600">This Month:</span>
+            <span class="font-medium text-green-600">₹{{ month_sales }}</span>
+        </div>
+        <div class="flex justify-between text-sm">
+            <span class="text-gray-600">Month Profit:</span>
+            <span class="font-medium text-blue-600">₹{{ month_profit }}</span>
+        </div>
+        <div class="flex justify-between text-sm">
+            <span class="text-gray-600">Avg. Sale:</span>
+            <span class="font-medium text-purple-600">₹{{ average_sale }}</span>
+        </div>
+    </div>
+</div>
+
+<!-- New Sale Modal -->
+<div id="newSaleModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50 p-4">
+    <div class="bg-white rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+        <div class="flex items-center justify-between p-6 border-b">
+            <h3 class="text-lg font-semibold text-gray-800">Create New Sale</h3>
+            <button id="closeModal" class="text-gray-400 hover:text-gray-600 transition-colors">
+                <i class="fas fa-times text-lg"></i>
+            </button>
+        </div>
+        <form method="post" id="saleForm">
+            {% csrf_token %}
+            <div class="p-6">
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Stock Item *</label>
+                        <select name="stock_item" id="stockSelect" required class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-500">
+                            <option value="">Select Stock Item</option>
+                            {% for stock in stock_items %}
+                            <option value="{{ stock.id }}" data-quantity="{{ stock.quantity }}" data-cost="{{ stock.cost_price }}">
+                                {{ stock.category.name }} - {{ stock.sizes }} (Available: {{ stock.quantity }}, Cost: ₹{{ stock.cost_price|floatformat:0 }})
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Quantity *</label>
+                            <input type="number" name="quantity_sold" id="quantityInput" required min="1" value="1" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-500" placeholder="Enter quantity">
+                            <p class="text-xs text-gray-500 mt-1" id="quantityHelp">Available: <span id="availableQuantity">0</span> units</p>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Selling Price *</label>
+                            <input type="number" name="selling_price" id="sellingPrice" required step="0.01" min="0" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-500" placeholder="Enter selling price">
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-4 bg-gray-50 p-3 rounded-lg">
+                        <div>
+                            <p class="text-sm font-medium text-gray-600">Cost Price</p>
+                            <p class="text-lg font-semibold text-gray-800" id="costPriceDisplay">₹0</p>
+                        </div>
+                        <div>
+                            <p class="text-sm font-medium text-gray-600">Estimated Profit</p>
+                            <p class="text-lg font-semibold text-green-600" id="profitDisplay">₹0</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="flex justify-end gap-3 mt-6">
+                    <button type="button" id="cancelModal" class="px-4 py-2 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+                        Cancel
+                    </button>
+                    <button type="submit" id="confirmSale" class="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors">
+                        Create Sale
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Modal Elements
+        const modal = document.getElementById('newSaleModal');
+        const newSaleBtn = document.getElementById('newSaleBtn');
+        const newSaleEmpty = document.getElementById('newSaleEmpty');
+        const closeModal = document.getElementById('closeModal');
+        const cancelModal = document.getElementById('cancelModal');
+        const saleForm = document.getElementById('saleForm');
+        const stockSelect = document.getElementById('stockSelect');
+        const quantityInput = document.getElementById('quantityInput');
+        const sellingPrice = document.getElementById('sellingPrice');
+        const availableQuantity = document.getElementById('availableQuantity');
+        const costPriceDisplay = document.getElementById('costPriceDisplay');
+        const profitDisplay = document.getElementById('profitDisplay');
+        const quantityHelp = document.getElementById('quantityHelp');
+        const confirmSale = document.getElementById('confirmSale');
+
+        // Modal Functions
+        function openModal() {
+            modal.classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+            // Reset form
+            stockSelect.value = '';
+            quantityInput.value = '1';
+            sellingPrice.value = '';
+            availableQuantity.textContent = '0';
+            costPriceDisplay.textContent = '₹0';
+            profitDisplay.textContent = '₹0';
+        }
+
+        function closeModalFunc() {
+            modal.classList.add('hidden');
+            document.body.style.overflow = 'auto';
+        }
+
+        // Modal Event Listeners
+        newSaleBtn.addEventListener('click', openModal);
+        if (newSaleEmpty) newSaleEmpty.addEventListener('click', openModal);
+        closeModal.addEventListener('click', closeModalFunc);
+        cancelModal.addEventListener('click', closeModalFunc);
+
+        // Close modal when clicking outside
+        modal.addEventListener('click', function(e) {
+            if (e.target === modal) {
+                closeModalFunc();
+            }
+        });
+
+        // Update available quantity and calculations when stock is selected
+        stockSelect.addEventListener('change', function() {
+            const selectedOption = this.options[this.selectedIndex];
+            const available = selectedOption.getAttribute('data-quantity');
+            const costPrice = selectedOption.getAttribute('data-cost');
+            
+            availableQuantity.textContent = available || '0';
+            costPriceDisplay.textContent = '₹' + (costPrice ? parseInt(costPrice) : '0');
+            
+            // Update quantity input max value
+            quantityInput.max = available || 1;
+            
+            calculateProfit();
+        });
+
+        // Calculate profit when quantity or selling price changes
+        quantityInput.addEventListener('input', calculateProfit);
+        sellingPrice.addEventListener('input', calculateProfit);
+
+        function calculateProfit() {
+            const quantity = parseInt(quantityInput.value) || 0;
+            const selling = parseFloat(sellingPrice.value) || 0;
+            const selectedOption = stockSelect.options[stockSelect.selectedIndex];
+            const costPrice = parseFloat(selectedOption.getAttribute('data-cost')) || 0;
+            
+            const totalCost = quantity * costPrice;
+            const totalRevenue = quantity * selling;
+            const profit = totalRevenue - totalCost;
+            
+            profitDisplay.textContent = '₹' + profit.toFixed(0);
+            
+            // Validate quantity
+            const available = parseInt(availableQuantity.textContent) || 0;
+            if (quantity > available) {
+                quantityHelp.classList.add('text-red-500');
+                quantityHelp.classList.remove('text-gray-500');
+                confirmSale.disabled = true;
+            } else {
+                quantityHelp.classList.remove('text-red-500');
+                quantityHelp.classList.add('text-gray-500');
+                confirmSale.disabled = false;
+            }
+        }
+
+        // Quick Date Range Buttons
+        document.getElementById('last7Days').addEventListener('click', function() {
+            setDateRange(7);
+        });
+
+        document.getElementById('last30Days').addEventListener('click', function() {
+            setDateRange(30);
+        });
+
+        document.getElementById('last90Days').addEventListener('click', function() {
+            setDateRange(90);
+        });
+
+        document.getElementById('thisMonth').addEventListener('click', function() {
+            const today = new Date();
+            const firstDay = new Date(today.getFullYear(), today.getMonth(), 1);
+            const lastDay = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+            
+            document.getElementById('startDate').value = firstDay.toISOString().split('T')[0];
+            document.getElementById('endDate').value = lastDay.toISOString().split('T')[0];
+            document.getElementById('filterForm').submit();
+        });
+
+        function setDateRange(days) {
+            const endDate = new Date();
+            const startDate = new Date();
+            startDate.setDate(endDate.getDate() - days);
+            
+            document.getElementById('startDate').value = startDate.toISOString().split('T')[0];
+            document.getElementById('endDate').value = endDate.toISOString().split('T')[0];
+            document.getElementById('filterForm').submit();
+        }
+
+        // Edit sale buttons
+        document.querySelectorAll('.edit-sale').forEach(button => {
+            button.addEventListener('click', function() {
+                const saleId = this.getAttribute('data-id');
+                alert(`Edit functionality for sale #${saleId} will be implemented in the next version.`);
+            });
+        });
+
+        // Form submission loading state
+        document.getElementById('filterForm').addEventListener('submit', function() {
+            const submitButton = document.getElementById('applyFilters');
+            submitButton.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Applying...';
+            submitButton.disabled = true;
+        });
+
+        // Sale form submission
+        saleForm.addEventListener('submit', function() {
+            const quantity = parseInt(quantityInput.value) || 0;
+            const available = parseInt(availableQuantity.textContent) || 0;
+            
+            if (quantity > available) {
+                alert('Cannot create sale! Quantity exceeds available stock.');
+                return false;
+            }
+            
+            confirmSale.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Creating...';
+            confirmSale.disabled = true;
+        });
+
+        // Auto-submit when category changes
+        document.getElementById('categoryFilter').addEventListener('change', function() {
+            document.getElementById('filterForm').submit();
+        });
+    });
+</script>
+{% endblock %}

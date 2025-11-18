@@ -1,0 +1,48 @@
+<header class="bg-white border-b border-gray-200 p-4 flex items-center justify-between">
+    <div class="flex items-center">
+        <button id="menu-toggle" class="p-2 rounded-md text-gray-600 md:hidden">
+            <i class="fas fa-bars"></i>
+        </button>
+        <div class="relative ml-2 md:ml-4 w-48 md:w-64">
+            <input type="text" placeholder="Search..."
+                class="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent">
+            <i class="fas fa-search absolute left-3 top-3 text-gray-400"></i>
+        </div>
+    </div>
+
+    <div class="flex items-center space-x-4">
+        <!-- Notifications -->
+        <div class="relative">
+            <button class="p-2 rounded-full text-gray-600 hover:bg-gray-100">
+                <i class="fas fa-bell"></i>
+            </button>
+            <span class="absolute top-0 right-0 w-3 h-3 bg-red-500 rounded-full"></span>
+        </div>
+
+        <!-- User Dropdown -->
+        <div class="relative">
+            <button id="user-menu-button" class="flex items-center space-x-2 p-2 rounded-lg hover:bg-gray-100">
+                <div class="w-8 h-8 rounded-full bg-primary-100 flex items-center justify-center">
+                    <span class="text-primary-600 font-semibold text-sm">JD</span>
+                </div>
+                <span class="hidden md:block text-gray-700">John Doe</span>
+                <i class="fas fa-chevron-down text-gray-500 text-xs"></i>
+            </button>
+
+            <!-- Dropdown Menu -->
+            <div id="user-dropdown"
+                class="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-1 hidden z-10">
+                <a href="#" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">
+                    <i class="fas fa-user mr-2"></i>Profile
+                </a>
+                <a href="#" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">
+                    <i class="fas fa-cog mr-2"></i>Settings
+                </a>
+                <hr class="my-1">
+                <a href="#" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">
+                    <i class="fas fa-sign-out-alt mr-2"></i>Logout
+                </a>
+            </div>
+        </div>
+    </div>
+</header>

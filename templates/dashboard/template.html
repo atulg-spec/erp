@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StorePro ERP | Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            50: '#f0f9ff',
+                            100: '#e0f2fe',
+                            500: '#0ea5e9',
+                            600: '#0284c7',
+                            700: '#0369a1',
+                            800: '#075985',
+                            900: '#0c4a6e',
+                        },
+                        dark: {
+                            50: '#f8fafc',
+                            100: '#f1f5f9',
+                            200: '#e2e8f0',
+                            300: '#cbd5e1',
+                            400: '#94a3b8',
+                            500: '#64748b',
+                            600: '#475569',
+                            700: '#334155',
+                            800: '#1e293b',
+                            900: '#0f172a',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .sidebar-transition {
+            transition: all 0.3s ease;
+        }
+        .chart-placeholder {
+            background: linear-gradient(90deg, #f1f5f9 0%, #e2e8f0 50%, #f1f5f9 100%);
+            background-size: 200% 100%;
+            animation: shimmer 2s infinite;
+        }
+        @keyframes shimmer {
+            0% { background-position: -200% 0; }
+            100% { background-position: 200% 0; }
+        }
+        .mobile-menu-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 40;
+            display: none;
+        }
+        .mobile-card-view {
+            display: none;
+        }
+        @media (max-width: 768px) {
+            .mobile-card-view {
+                display: block;
+            }
+            .table-view {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800">
+    <!-- Mobile Menu Overlay -->
+    <div id="mobile-overlay" class="mobile-menu-overlay"></div>
+    
+    <div class="flex h-screen overflow-hidden">
+        <!-- Sidebar Navigation -->
+        <aside id="sidebar" class="sidebar-transition bg-white w-64 border-r border-gray-200 flex flex-col flex-shrink-0 fixed md:relative h-full z-50 transform -translate-x-full md:translate-x-0">
+            <!-- Logo/Brand Section -->
+            <div class="p-4 border-b border-gray-200 flex justify-between items-center">
+                <div class="flex items-center space-x-2">
+                    <div class="w-8 h-8 bg-primary-500 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-store text-white text-sm"></i>
+                    </div>
+                    <span class="text-xl font-bold text-gray-800">StorePro ERP</span>
+                </div>
+                <button id="close-sidebar" class="p-2 rounded-md text-gray-600 md:hidden">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <!-- Menu Items -->
+            <nav class="flex-1 p-4 space-y-2">
+                <a href="#" class="flex items-center space-x-3 p-2 rounded-lg bg-primary-50 text-primary-600">
+                    <i class="fas fa-chart-pie w-5"></i>
+                    <span>Dashboard</span>
+                </a>
+                <a href="#" class="flex items-center space-x-3 p-2 rounded-lg text-gray-600 hover:bg-gray-100">
+                    <i class="fas fa-boxes w-5"></i>
+                    <span>Inventory</span>
+                </a>
+                <a href="#" class="flex items-center space-x-3 p-2 rounded-lg text-gray-600 hover:bg-gray-100">
+                    <i class="fas fa-shopping-cart w-5"></i>
+                    <span>Purchases</span>
+                </a>
+                <a href="#" class="flex items-center space-x-3 p-2 rounded-lg text-gray-600 hover:bg-gray-100">
+                    <i class="fas fa-credit-card w-5"></i>
+                    <span>Sales</span>
+                </a>
+                <a href="#" class="flex items-center space-x-3 p-2 rounded-lg text-gray-600 hover:bg-gray-100">
+                    <i class="fas fa-money-bill-wave w-5"></i>
+                    <span>Expenses</span>
+                </a>
+                <a href="#" class="flex items-center space-x-3 p-2 rounded-lg text-gray-600 hover:bg-gray-100">
+                    <i class="fas fa-chart-bar w-5"></i>
+                    <span>Reports</span>
+                </a>
+                <a href="#" class="flex items-center space-x-3 p-2 rounded-lg text-gray-600 hover:bg-gray-100">
+                    <i class="fas fa-cog w-5"></i>
+                    <span>Settings</span>
+                </a>
+            </nav>
+            
+            <!-- User Info -->
+            <div class="p-4 border-t border-gray-200">
+                <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 rounded-full bg-primary-100 flex items-center justify-center">
+                        <span class="text-primary-600 font-semibold">JD</span>
+                    </div>
+                    <div>
+                        <p class="font-medium text-gray-800">John Doe</p>
+                        <p class="text-sm text-gray-500">Administrator</p>
+                    </div>
+                </div>
+            </div>
+        </aside>
+        
+        <!-- Main Content -->
+        <div class="flex-1 flex flex-col overflow-hidden md:ml-0">
+            <!-- Header / Topbar -->
+            <header class="bg-white border-b border-gray-200 p-4 flex items-center justify-between">
+                <div class="flex items-center">
+                    <button id="menu-toggle" class="p-2 rounded-md text-gray-600 md:hidden">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    <div class="relative ml-2 md:ml-4 w-48 md:w-64">
+                        <input type="text" placeholder="Search..." class="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent">
+                        <i class="fas fa-search absolute left-3 top-3 text-gray-400"></i>
+                    </div>
+                </div>
+                
+                <div class="flex items-center space-x-4">
+                    <!-- Notifications -->
+                    <div class="relative">
+                        <button class="p-2 rounded-full text-gray-600 hover:bg-gray-100">
+                            <i class="fas fa-bell"></i>
+                        </button>
+                        <span class="absolute top-0 right-0 w-3 h-3 bg-red-500 rounded-full"></span>
+                    </div>
+                    
+                    <!-- User Dropdown -->
+                    <div class="relative">
+                        <button id="user-menu-button" class="flex items-center space-x-2 p-2 rounded-lg hover:bg-gray-100">
+                            <div class="w-8 h-8 rounded-full bg-primary-100 flex items-center justify-center">
+                                <span class="text-primary-600 font-semibold text-sm">JD</span>
+                            </div>
+                            <span class="hidden md:block text-gray-700">John Doe</span>
+                            <i class="fas fa-chevron-down text-gray-500 text-xs"></i>
+                        </button>
+                        
+                        <!-- Dropdown Menu -->
+                        <div id="user-dropdown" class="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-1 hidden z-10">
+                            <a href="#" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">
+                                <i class="fas fa-user mr-2"></i>Profile
+                            </a>
+                            <a href="#" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">
+                                <i class="fas fa-cog mr-2"></i>Settings
+                            </a>
+                            <hr class="my-1">
+                            <a href="#" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">
+                                <i class="fas fa-sign-out-alt mr-2"></i>Logout
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </header>
+            
+            <!-- Main Content Area -->
+            {% block body %}
+            {% endblock %}
+        </div>
+    </div>
+
+    <script>
+        // Mobile menu toggle
+        document.getElementById('menu-toggle').addEventListener('click', function() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('mobile-overlay');
+            sidebar.classList.remove('-translate-x-full');
+            overlay.style.display = 'block';
+        });
+
+        // Close sidebar
+        document.getElementById('close-sidebar').addEventListener('click', function() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('mobile-overlay');
+            sidebar.classList.add('-translate-x-full');
+            overlay.style.display = 'none';
+        });
+
+        // Close sidebar when clicking overlay
+        document.getElementById('mobile-overlay').addEventListener('click', function() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.add('-translate-x-full');
+            this.style.display = 'none';
+        });
+
+        // User dropdown toggle
+        document.getElementById('user-menu-button').addEventListener('click', function() {
+            const dropdown = document.getElementById('user-dropdown');
+            dropdown.classList.toggle('hidden');
+        });
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(event) {
+            const userButton = document.getElementById('user-menu-button');
+            const dropdown = document.getElementById('user-dropdown');
+            
+            if (!userButton.contains(event.target) && !dropdown.contains(event.target)) {
+                dropdown.classList.add('hidden');
+            }
+        });
+
+        // Close sidebar on window resize if it's desktop
+        window.addEventListener('resize', function() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('mobile-overlay');
+            
+            if (window.innerWidth >= 768) {
+                sidebar.classList.remove('-translate-x-full');
+                overlay.style.display = 'none';
+            } else {
+                sidebar.classList.add('-translate-x-full');
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mobile Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-gray-100">
+    <!-- Main Container -->
+    <div class="min-h-screen max-w-md mx-auto bg-white">
+        <!-- Header -->
+        <header class="sticky top-0 bg-white shadow-sm z-10">
+            <div class="flex items-center justify-between p-4">
+                <div class="flex items-center">
+                    <div class="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center">
+                        <span class="text-white font-bold">MD</span>
+                    </div>
+                    <h1 class="ml-3 text-xl font-bold">Dashboard</h1>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <button class="text-gray-600">
+                        <i class="fas fa-bell"></i>
+                    </button>
+                    <button class="text-gray-600">
+                        <i class="fas fa-cog"></i>
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="p-4 pb-20">
+            <!-- Welcome Section -->
+            <div class="mb-6">
+                <h2 class="text-lg font-semibold">Good morning, Alex!</h2>
+                <p class="text-gray-500 text-sm">Here's your daily overview</p>
+            </div>
+
+            <!-- Stats Grid -->
+            <div class="grid grid-cols-2 gap-4 mb-6">
+                <div class="bg-blue-50 rounded-xl p-4">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <p class="text-xs text-gray-500">Revenue</p>
+                            <p class="text-lg font-bold">$2,845</p>
+                        </div>
+                        <div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+                            <i class="fas fa-dollar-sign text-blue-500 text-sm"></i>
+                        </div>
+                    </div>
+                    <p class="text-xs text-green-500 mt-2">
+                        <i class="fas fa-arrow-up"></i> 12.5% from last week
+                    </p>
+                </div>
+
+                <div class="bg-purple-50 rounded-xl p-4">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <p class="text-xs text-gray-500">Users</p>
+                            <p class="text-lg font-bold">1,248</p>
+                        </div>
+                        <div class="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center">
+                            <i class="fas fa-users text-purple-500 text-sm"></i>
+                        </div>
+                    </div>
+                    <p class="text-xs text-green-500 mt-2">
+                        <i class="fas fa-arrow-up"></i> 8.2% from last week
+                    </p>
+                </div>
+
+                <div class="bg-green-50 rounded-xl p-4">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <p class="text-xs text-gray-500">Orders</p>
+                            <p class="text-lg font-bold">324</p>
+                        </div>
+                        <div class="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
+                            <i class="fas fa-shopping-cart text-green-500 text-sm"></i>
+                        </div>
+                    </div>
+                    <p class="text-xs text-red-500 mt-2">
+                        <i class="fas fa-arrow-down"></i> 3.1% from last week
+                    </p>
+                </div>
+
+                <div class="bg-yellow-50 rounded-xl p-4">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <p class="text-xs text-gray-500">Conversion</p>
+                            <p class="text-lg font-bold">4.8%</p>
+                        </div>
+                        <div class="w-8 h-8 bg-yellow-100 rounded-full flex items-center justify-center">
+                            <i class="fas fa-chart-line text-yellow-500 text-sm"></i>
+                        </div>
+                    </div>
+                    <p class="text-xs text-green-500 mt-2">
+                        <i class="fas fa-arrow-up"></i> 2.7% from last week
+                    </p>
+                </div>
+            </div>
+
+            <!-- Chart Section -->
+            <div class="bg-white rounded-xl shadow-sm p-4 mb-6">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="font-semibold">Weekly Performance</h3>
+                    <button class="text-xs text-blue-500">View Details</button>
+                </div>
+                
+                <!-- Simple bar chart using divs -->
+                <div class="flex items-end justify-between h-40 px-2">
+                    <div class="flex flex-col items-center">
+                        <div class="w-6 bg-blue-500 rounded-t-lg mb-1" style="height: 60px;"></div>
+                        <span class="text-xs text-gray-500">Mon</span>
+                    </div>
+                    <div class="flex flex-col items-center">
+                        <div class="w-6 bg-blue-500 rounded-t-lg mb-1" style="height: 90px;"></div>
+                        <span class="text-xs text-gray-500">Tue</span>
+                    </div>
+                    <div class="flex flex-col items-center">
+                        <div class="w-6 bg-blue-500 rounded-t-lg mb-1" style="height: 120px;"></div>
+                        <span class="text-xs text-gray-500">Wed</span>
+                    </div>
+                    <div class="flex flex-col items-center">
+                        <div class="w-6 bg-blue-500 rounded-t-lg mb-1" style="height: 100px;"></div>
+                        <span class="text-xs text-gray-500">Thu</span>
+                    </div>
+                    <div class="flex flex-col items-center">
+                        <div class="w-6 bg-blue-500 rounded-t-lg mb-1" style="height: 140px;"></div>
+                        <span class="text-xs text-gray-500">Fri</span>
+                    </div>
+                    <div class="flex flex-col items-center">
+                        <div class="w-6 bg-blue-500 rounded-t-lg mb-1" style="height: 80px;"></div>
+                        <span class="text-xs text-gray-500">Sat</span>
+                    </div>
+                    <div class="flex flex-col items-center">
+                        <div class="w-6 bg-blue-500 rounded-t-lg mb-1" style="height: 110px;"></div>
+                        <span class="text-xs text-gray-500">Sun</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Activity -->
+            <div class="bg-white rounded-xl shadow-sm p-4 mb-6">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="font-semibold">Recent Activity</h3>
+                    <button class="text-xs text-blue-500">See All</button>
+                </div>
+                
+                <div class="space-y-4">
+                    <div class="flex items-start">
+                        <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center mr-3">
+                            <i class="fas fa-shopping-cart text-blue-500"></i>
+                        </div>
+                        <div>
+                            <p class="text-sm font-medium">New order received</p>
+                            <p class="text-xs text-gray-500">Order #2845 for $128.99</p>
+                            <p class="text-xs text-gray-400">10 minutes ago</p>
+                        </div>
+                    </div>
+                    
+                    <div class="flex items-start">
+                        <div class="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center mr-3">
+                            <i class="fas fa-user-plus text-green-500"></i>
+                        </div>
+                        <div>
+                            <p class="text-sm font-medium">New user registered</p>
+                            <p class="text-xs text-gray-500">Sarah Johnson joined the platform</p>
+                            <p class="text-xs text-gray-400">45 minutes ago</p>
+                        </div>
+                    </div>
+                    
+                    <div class="flex items-start">
+                        <div class="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center mr-3">
+                            <i class="fas fa-chart-line text-purple-500"></i>
+                        </div>
+                        <div>
+                            <p class="text-sm font-medium">Campaign performance</p>
+                            <p class="text-xs text-gray-500">Summer campaign reached 85% of goal</p>
+                            <p class="text-xs text-gray-400">2 hours ago</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="bg-white rounded-xl shadow-sm p-4">
+                <h3 class="font-semibold mb-4">Quick Actions</h3>
+                
+                <div class="grid grid-cols-4 gap-4">
+                    <button class="flex flex-col items-center p-2 rounded-lg bg-gray-50">
+                        <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center mb-1">
+                            <i class="fas fa-plus text-blue-500"></i>
+                        </div>
+                        <span class="text-xs">Add</span>
+                    </button>
+                    
+                    <button class="flex flex-col items-center p-2 rounded-lg bg-gray-50">
+                        <div class="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center mb-1">
+                            <i class="fas fa-chart-bar text-green-500"></i>
+                        </div>
+                        <span class="text-xs">Reports</span>
+                    </button>
+                    
+                    <button class="flex flex-col items-center p-2 rounded-lg bg-gray-50">
+                        <div class="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center mb-1">
+                            <i class="fas fa-cog text-purple-500"></i>
+                        </div>
+                        <span class="text-xs">Settings</span>
+                    </button>
+                    
+                    <button class="flex flex-col items-center p-2 rounded-lg bg-gray-50">
+                        <div class="w-10 h-10 bg-yellow-100 rounded-full flex items-center justify-center mb-1">
+                            <i class="fas fa-users text-yellow-500"></i>
+                        </div>
+                        <span class="text-xs">Team</span>
+                    </button>
+                </div>
+            </div>
+        </main>
+
+        <!-- Bottom Navigation -->
+        <nav class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 max-w-md mx-auto">
+            <div class="flex justify-around items-center p-3">
+                <a href="#" class="flex flex-col items-center text-blue-500">
+                    <i class="fas fa-home"></i>
+                    <span class="text-xs mt-1">Home</span>
+                </a>
+                <a href="#" class="flex flex-col items-center text-gray-500">
+                    <i class="fas fa-chart-bar"></i>
+                    <span class="text-xs mt-1">Analytics</span>
+                </a>
+                <a href="#" class="flex flex-col items-center text-gray-500">
+                    <i class="fas fa-wallet"></i>
+                    <span class="text-xs mt-1">Finance</span>
+                </a>
+                <a href="#" class="flex flex-col items-center text-gray-500">
+                    <i class="fas fa-user"></i>
+                    <span class="text-xs mt-1">Profile</span>
+                </a>
+            </div>
+        </nav>
+    </div>
+</body>
+</html>

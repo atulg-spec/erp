@@ -1,0 +1,104 @@
+{% extends 'dashboard/base.html' %}
+{% block body %}
+<main class="flex-1 overflow-y-auto p-4 bg-gray-50">
+    <!-- Dashboard Overview Section -->
+    <section id="dashboard" class="mb-8">
+        <h2 class="text-2xl font-bold text-gray-800 mb-4">Dashboard Overview</h2>
+
+        <!-- KPI Cards -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+            <!-- Total Sales Card -->
+            <div class="bg-white rounded-xl shadow-sm p-5 border border-gray-100">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <p class="text-gray-500 text-sm">Total Sales</p>
+                        <h3 class="text-2xl font-bold text-gray-800 mt-1">₹ {{total_sales}}</h3>
+                        <div class="flex items-center mt-2">
+                            <span class="text-green-500 text-sm flex items-center">
+                                <i class="fas fa-arrow-up mr-1"></i> 12.5%
+                            </span>
+                            <span class="text-gray-500 text-sm ml-2 hidden sm:inline">vs last month</span>
+                        </div>
+                    </div>
+                    <div class="p-3 bg-green-50 rounded-lg">
+                        <i class="fas fa-credit-card text-green-500"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Total Purchases Card -->
+            <div class="bg-white rounded-xl shadow-sm p-5 border border-gray-100">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <p class="text-gray-500 text-sm">Total Purchases</p>
+                        <h3 class="text-2xl font-bold text-gray-800 mt-1">₹ {{total_purchases}}</h3>
+                        <div class="flex items-center mt-2">
+                            <span class="text-red-500 text-sm flex items-center">
+                                <i class="fas fa-arrow-down mr-1"></i> 3.2%
+                            </span>
+                            <span class="text-gray-500 text-sm ml-2 hidden sm:inline">vs last month</span>
+                        </div>
+                    </div>
+                    <div class="p-3 bg-blue-50 rounded-lg">
+                        <i class="fas fa-shopping-cart text-blue-500"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Current Inventory Card -->
+            <div class="bg-white rounded-xl shadow-sm p-5 border border-gray-100">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <p class="text-gray-500 text-sm">Current Inventory</p>
+                        <h3 class="text-2xl font-bold text-gray-800 mt-1">₹ {{total_stock}}</h3>
+                        <div class="flex items-center mt-2">
+                            <span class="text-green-500 text-sm flex items-center">
+                                <i class="fas fa-arrow-up mr-1"></i> 5.7%
+                            </span>
+                            <span class="text-gray-500 text-sm ml-2 hidden sm:inline">vs last month</span>
+                        </div>
+                    </div>
+                    <div class="p-3 bg-purple-50 rounded-lg">
+                        <i class="fas fa-boxes text-purple-500"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Total Expenses Card -->
+            <div class="bg-white rounded-xl shadow-sm p-5 border border-gray-100">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <p class="text-gray-500 text-sm">Total Expenses</p>
+                        <h3 class="text-2xl font-bold text-gray-800 mt-1">₹ {{total_expenses}}</h3>
+                        <div class="flex items-center mt-2">
+                            <span class="text-red-500 text-sm flex items-center">
+                                <i class="fas fa-arrow-up mr-1"></i> 8.1%
+                            </span>
+                            <span class="text-gray-500 text-sm ml-2 hidden sm:inline">vs last month</span>
+                        </div>
+                    </div>
+                    <div class="p-3 bg-yellow-50 rounded-lg">
+                        <i class="fas fa-money-bill-wave text-yellow-500"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Charts Placeholder -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+            <div class="bg-white rounded-xl shadow-sm p-5 border border-gray-100">
+                <h3 class="text-lg font-semibold text-gray-800 mb-4">Sales Trend</h3>
+                <div class="chart-placeholder h-64 rounded-lg flex items-center justify-center">
+                    <p class="text-gray-500">Sales chart visualization</p>
+                </div>
+            </div>
+            <div class="bg-white rounded-xl shadow-sm p-5 border border-gray-100">
+                <h3 class="text-lg font-semibold text-gray-800 mb-4">Inventory Overview</h3>
+                <div class="chart-placeholder h-64 rounded-lg flex items-center justify-center">
+                    <p class="text-gray-500">Inventory chart visualization</p>
+                </div>
+            </div>
+        </div>
+    </section>
+</main>
+{% endblock %}
