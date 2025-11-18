@@ -14,14 +14,14 @@ class SalesAdmin(admin.ModelAdmin):
     )
     list_filter = ('sold_on', 'stock__category')
     search_fields = ('stock__category__name', 'stock__sizes')
-    readonly_fields = ('total_amount', 'gross_profit')
+    readonly_fields = ('total_amount', 'gross_profit', 'sold_on')
 
     fieldsets = (
         ('Sale Details', {
-            'fields': ('stock', 'quantity_sold', 'sold_on')
+            'fields': ('stock', 'quantity_sold')
         }),
         ('Auto Calculated', {
-            'fields': ('total_amount', 'gross_profit'),
+            'fields': ('total_amount', 'gross_profit', 'sold_on'),
             'classes': ('collapse',)
         }),
     )
