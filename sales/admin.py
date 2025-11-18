@@ -21,7 +21,7 @@ class SalesAdmin(admin.ModelAdmin):
             'fields': ('stock', 'quantity_sold', 'sold_on')
         }),
         ('Auto Calculated', {
-            'fields': ('total_amount', 'gross_profit', 'sold_on'),
+            'fields': ('total_amount', 'gross_profit'),
             'classes': ('collapse',)
         }),
     )
