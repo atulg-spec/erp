@@ -10,7 +10,6 @@ class Purchase(models.Model):
     cost_price_per_unit = models.FloatField(help_text="Cost per unit at purchase time")
     selling_price = models.FloatField(blank=True, null=True)
     total_cost = models.FloatField(editable=False)
-    remarks = models.TextField(blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     last_updated = models.DateTimeField(auto_now=True)
 

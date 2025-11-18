@@ -24,7 +24,6 @@ class PurchaseAdmin(admin.ModelAdmin):
                 "cost_price_per_unit",
                 "selling_price",
                 "total_cost",
-                "remarks",
             ),
         }),
         ("Timestamps", {
