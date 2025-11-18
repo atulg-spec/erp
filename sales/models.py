@@ -7,7 +7,7 @@ class Sales(models.Model):
     selling_price = models.FloatField(default=0)
     total_amount = models.FloatField(editable=False)
     gross_profit = models.FloatField(editable=False, default=0)
-    sold_on = models.DateTimeField(auto_now_add=True)
+    sold_on = models.DateTimeField()
 
     def save(self, *args, **kwargs):
         # Calculate total amount
