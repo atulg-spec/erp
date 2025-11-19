@@ -35,10 +35,10 @@ def verify_sale(modeladmin, request, queryset):
     else:
         messages.warning(request, "No sales were verified.")
 
-@admin.action(description="📊 Download Premium Sales Report")
+@admin.action(description="📊 Download Sales Report")
 def download_sales_report(modeladmin, request, queryset):
     """
-    Generate premium PDF report for currently filtered sales
+    Generate PDF report for currently filtered sales
     No need to select any records - works with current filters
     """
     # Get the current filtered queryset (ignore selected items)
@@ -76,10 +76,10 @@ def download_sales_report(modeladmin, request, queryset):
         
         # Create HTTP response
         response = HttpResponse(buffer, content_type='application/pdf')
-        filename = f"Premium_Sales_Report_{start_date}_to_{end_date}.pdf"
+        filename = f"Sales_Report_{start_date}_to_{end_date}.pdf"
         response['Content-Disposition'] = f'attachment; filename="{filename}"'
         
-        messages.success(request, f"📈 Premium sales report generated for {start_date} to {end_date}")
+        messages.success(request, f"📈 Sales report generated for {start_date} to {end_date}")
         return response
         
     except Exception as e:
