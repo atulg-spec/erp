@@ -20,10 +20,10 @@ class SalesAdmin(admin.ModelAdmin):
         ('Sale Details', {
             'fields': ('stock', 'quantity_sold', 'total_amount', 'gross_profit', 'sold_on')
         }),
-        ('Auto Calculated', {
-            # 'fields': ('total_amount', 'gross_profit', 'sold_on'),
-            # 'classes': ('collapse',)
-        }),
+        # ('Auto Calculated', {
+        #     # 'fields': ('total_amount', 'gross_profit', 'sold_on'),
+        #     # 'classes': ('collapse',)
+        # }),
     )
 
     def save_model(self, request, obj, form, change):
