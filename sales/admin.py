@@ -22,7 +22,7 @@ class SalesAdmin(admin.ModelAdmin):
         }),
         ('Auto Calculated', {
             'fields': ('total_amount', 'gross_profit', 'sold_on'),
-            'classes': ('collapse',)
+            # 'classes': ('collapse',)
         }),
     )
 
