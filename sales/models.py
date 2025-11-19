@@ -7,7 +7,7 @@ class Sales(models.Model):
     selling_price = models.FloatField(default=0)
     total_amount = models.FloatField(editable=False)
     gross_profit = models.FloatField(editable=False, default=0)
-    sold_on = models.DateTimeField()
+    sold_on = models.DateTimeField(auto_now_add=True)
     is_verified = models.BooleanField(default=False)  # <-- VERY IMPORTANT
 
     def save(self, *args, **kwargs):
