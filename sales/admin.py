@@ -7,6 +7,11 @@ from .reports import generate_sales_report
 from datetime import datetime
 from django.utils import timezone
 
+def get_local_date(dt):
+    """Convert datetime to Asia/Kolkata local date."""
+    return timezone.localtime(dt).date()
+
+
 @admin.action(description="✅ Verify Selected Sales")
 def verify_sale(modeladmin, request, queryset):
     if not request.user.is_superuser:
@@ -35,56 +40,65 @@ def verify_sale(modeladmin, request, queryset):
     else:
         messages.warning(request, "No sales were verified.")
 
+
+
 @admin.action(description="📊 Download Sales Report")
 def download_sales_report(modeladmin, request, queryset):
     """
-    Generate PDF report for currently filtered sales
-    No need to select any records - works with current filters
+    Generate PDF report for currently filtered sales.
+    Works even without selecting items.
+    Always uses Asia/Kolkata local timezone.
     """
-    # Get the current filtered queryset (ignore selected items)
+
+    # --- Helper to convert datetime to local date ---
+    def local_date(dt):
+        return timezone.localtime(dt).date()
+
+    # Get current filtered queryset (ignore selected checkboxes)
     filtered_qs = modeladmin.get_queryset(request)
-    
-    # Get date filters from request
+
+    # Get filter dates from URL params
     start_date_str = request.GET.get('sold_on__date__gte')
     end_date_str = request.GET.get('sold_on__date__lte')
-    
-    # Determine date range
+
+    # --- Case 1: User applied date filters manually ---
     if start_date_str and end_date_str:
         try:
             start_date = datetime.strptime(start_date_str, '%Y-%m-%d').date()
             end_date = datetime.strptime(end_date_str, '%Y-%m-%d').date()
         except ValueError:
-            # Fallback to data range
-            if filtered_qs.exists():
-                start_date = filtered_qs.earliest('sold_on').sold_on.date()
-                end_date = filtered_qs.latest('sold_on').sold_on.date()
-            else:
-                start_date = timezone.now().date()
-                end_date = timezone.now().date()
+            start_date = None
+            end_date = None
     else:
-        # Use data range from queryset
+        start_date = None
+        end_date = None
+
+    # --- Case 2: If filters missing OR parsing failed → determine dates from queryset ---
+    if not start_date or not end_date:
         if filtered_qs.exists():
-            start_date = filtered_qs.earliest('sold_on').sold_on.date()
-            end_date = filtered_qs.latest('sold_on').sold_on.date()
+            start_date = local_date(filtered_qs.earliest('sold_on').sold_on)
+            end_date = local_date(filtered_qs.latest('sold_on').sold_on)
         else:
-            start_date = timezone.now().date()
-            end_date = timezone.now().date()
-    
+            today = local_date(timezone.now())
+            start_date = today
+            end_date = today
+
+    # --- Generate the PDF ---
     try:
-        # Generate premium PDF report
         buffer = generate_sales_report(start_date, end_date, filtered_qs)
-        
-        # Create HTTP response
+
         response = HttpResponse(buffer, content_type='application/pdf')
         filename = f"Sales_Report_{start_date}_to_{end_date}.pdf"
-        response['Content-Disposition'] = f'attachment; filename="{filename}"'
-        
-        messages.success(request, f"📈 Sales report generated for {start_date} to {end_date}")
+        response['Content-Disposition'] = f'attachment; filename=\"{filename}\"'
+
+        messages.success(request, f"📈 Sales report generated for {start_date} → {end_date}")
         return response
-        
+
     except Exception as e:
         messages.error(request, f"❌ Error generating report: {str(e)}")
         return
+
+
 
 @admin.register(Sales)
 class SalesAdmin(admin.ModelAdmin):

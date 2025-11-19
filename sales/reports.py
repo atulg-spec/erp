@@ -276,7 +276,7 @@ def generate_sales_report(start_date, end_date, queryset=None):
                 format_inr(sale.selling_price),
                 format_inr(sale.total_amount),
                 format_inr(sale.gross_profit),
-                sale.sold_on.strftime('%d/%m/%y'),
+                timezone.localtime(sale.sold_on).strftime('%d/%m/%y'),
                 status_text
             ])
         
@@ -352,7 +352,7 @@ def generate_sales_report(start_date, end_date, queryset=None):
     elements.append(Spacer(1, 10))
     
     # Footer information
-    generated_on = timezone.now().strftime('%d %B %Y at %I:%M %p')
+    generated_on = timezone.localtime(timezone.now()).strftime('%d %B %Y at %I:%M %p')
     footer_style = ParagraphStyle(
         'Footer', 
         fontSize=7.5, 
