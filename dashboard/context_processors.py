@@ -150,9 +150,6 @@ def dashboard_stats(request):
         avg_margin=Avg(F('gross_profit') / F('total_amount') * 100)
     )['avg_margin'] or 0
     
-    print(category_distribution)
-    # print(month_sales)
-    # print(daily_sales)
     return {
         'dashboard': {
             'today': today,
