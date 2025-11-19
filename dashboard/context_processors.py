@@ -147,7 +147,7 @@ def dashboard_stats(request):
     
     # Stock Alert Items
     stock_alerts = stock_base.filter(
-        quantity__lt=10
+        quantity__lt=1
     ).order_by('quantity')[:10]
     
     # Profit Margin Analysis
