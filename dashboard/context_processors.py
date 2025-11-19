@@ -17,24 +17,35 @@ def dashboard_stats(request):
     week_ago = today - timedelta(days=7)
     month_ago = today - timedelta(days=30)
     
+    # Create base querysets with user filter for non-superusers
+    stock_base = Stock.objects.all()
+    sales_base = Sales.objects.all()
+    purchase_base = Purchase.objects.all()
+    
+    # Apply user filter only if not superuser
+    if not request.user.is_superuser:
+        stock_base = stock_base.filter(user=request.user)
+        # Note: Sales and Purchase models might need user filtering too if they have user fields
+        # If they don't have user fields, you might need to adjust this
+    
     # Total Stock Value
-    total_stock_value = Stock.objects.filter(user=request.user).aggregate(
+    total_stock_value = stock_base.aggregate(
         total=Sum(F('quantity') * F('cost_price'))
     )['total'] or 0
     
     # Total Inventory Items
-    total_items = Stock.objects.filter(user=request.user).aggregate(
+    total_items = stock_base.aggregate(
         total=Sum('quantity')
     )['total'] or 0
     
     # Low Stock Items (less than 10 units)
-    low_stock_count = Stock.objects.filter(user=request.user, quantity__lt=10).count()
+    low_stock_count = stock_base.filter(quantity__lt=10).count()
     
     # Out of Stock Items
-    out_of_stock = Stock.objects.filter(user=request.user, quantity=0).count()
+    out_of_stock = stock_base.filter(quantity=0).count()
     
     # Today's Sales
-    today_sales = Sales.objects.filter(
+    today_sales = sales_base.filter(
         sold_on__date=today,
         is_verified=True
     ).aggregate(
@@ -43,7 +54,7 @@ def dashboard_stats(request):
     )
     
     # This Week's Sales
-    week_sales = Sales.objects.filter(
+    week_sales = sales_base.filter(
         sold_on__date__gte=week_ago,
         is_verified=True
     ).aggregate(
@@ -52,7 +63,7 @@ def dashboard_stats(request):
     )
     
     # This Month's Sales
-    month_sales = Sales.objects.filter(
+    month_sales = sales_base.filter(
         sold_on__date__gte=month_ago,
         is_verified=True
     ).aggregate(
@@ -62,20 +73,20 @@ def dashboard_stats(request):
     )
     
     # Total Revenue (All Time)
-    total_revenue = Sales.objects.filter(is_verified=True).aggregate(
+    total_revenue = sales_base.filter(is_verified=True).aggregate(
         total=Sum('total_amount')
     )['total'] or 0
     
     # Total Profit (All Time)
-    total_profit = Sales.objects.filter(is_verified=True).aggregate(
+    total_profit = sales_base.filter(is_verified=True).aggregate(
         total=Sum('gross_profit')
     )['total'] or 0
     
     # Pending Purchases
-    pending_purchases = Purchase.objects.filter(is_received=False).count()
+    pending_purchases = purchase_base.filter(is_received=False).count()
     
     # This Month's Purchases
-    month_purchases = Purchase.objects.filter(
+    month_purchases = purchase_base.filter(
         purchase_date__gte=month_ago
     ).aggregate(
         total=Sum('total_cost'),
@@ -83,7 +94,7 @@ def dashboard_stats(request):
     )
     
     # Top Selling Products (This Month)
-    top_products = Sales.objects.filter(
+    top_products = sales_base.filter(
         sold_on__date__gte=month_ago,
         is_verified=True
     ).values(
@@ -95,9 +106,7 @@ def dashboard_stats(request):
     ).order_by('-total_sold')[:5]
     
     # Category-wise Stock Distribution
-    category_distribution = Stock.objects.filter(
-        user=request.user
-    ).values('category__name').annotate(
+    category_distribution = stock_base.values('category__name').annotate(
         total_quantity=Sum('quantity'),
         total_value=Sum(F('quantity') * F('cost_price'))
     ).order_by('-total_value')
@@ -106,7 +115,7 @@ def dashboard_stats(request):
     daily_sales = []
     for i in range(6, -1, -1):
         date = today - timedelta(days=i)
-        sales = Sales.objects.filter(
+        sales = sales_base.filter(
             sold_on__date=date,
             is_verified=True
         ).aggregate(
@@ -121,7 +130,7 @@ def dashboard_stats(request):
     monthly_sales = []
     for i in range(5, -1, -1):
         month_start = (today.replace(day=1) - timedelta(days=i*30)).replace(day=1)
-        sales = Sales.objects.filter(
+        sales = sales_base.filter(
             sold_on__date__gte=month_start,
             sold_on__date__lt=month_start + timedelta(days=31),
             is_verified=True
@@ -134,16 +143,15 @@ def dashboard_stats(request):
         })
     
     # Recent Sales (Last 10)
-    recent_sales = Sales.objects.filter(is_verified=True).select_related('stock')[:10]
+    recent_sales = sales_base.filter(is_verified=True).select_related('stock')[:10]
     
     # Stock Alert Items
-    stock_alerts = Stock.objects.filter(
-        user=request.user,
+    stock_alerts = stock_base.filter(
         quantity__lt=10
     ).order_by('quantity')[:10]
     
     # Profit Margin Analysis
-    avg_profit_margin = Sales.objects.filter(
+    avg_profit_margin = sales_base.filter(
         is_verified=True,
         total_amount__gt=0
     ).aggregate(
