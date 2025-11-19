@@ -28,7 +28,7 @@ class StockAdmin(admin.ModelAdmin):
 
     fieldsets = (
         ("Stock Details", {
-            "fields": ("category", "name", "selling_price")
+            "fields": ("category", "name", "selling_price", "quantity")
         }),
     )
 
