@@ -260,7 +260,6 @@ def generate_sales_report(start_date, end_date, queryset=None):
             Paragraph('<b>QTY</b>', ParagraphStyle('TH', fontSize=8, fontName='Helvetica-Bold', textColor=colors.white, alignment=TA_CENTER)),
             Paragraph('<b>UNIT PRICE</b>', ParagraphStyle('TH', fontSize=8, fontName='Helvetica-Bold', textColor=colors.white, alignment=TA_RIGHT)),
             Paragraph('<b>AMOUNT</b>', ParagraphStyle('TH', fontSize=8, fontName='Helvetica-Bold', textColor=colors.white, alignment=TA_RIGHT)),
-            Paragraph('<b>PROFIT</b>', ParagraphStyle('TH', fontSize=8, fontName='Helvetica-Bold', textColor=colors.white, alignment=TA_RIGHT)),
             Paragraph('<b>DATE</b>', ParagraphStyle('TH', fontSize=8, fontName='Helvetica-Bold', textColor=colors.white, alignment=TA_CENTER)),
             Paragraph('<b>STATUS</b>', ParagraphStyle('TH', fontSize=8, fontName='Helvetica-Bold', textColor=colors.white, alignment=TA_CENTER))
         ]]
@@ -275,7 +274,6 @@ def generate_sales_report(start_date, end_date, queryset=None):
                 str(sale.quantity_sold),
                 format_inr(sale.selling_price),
                 format_inr(sale.total_amount),
-                format_inr(sale.gross_profit),
                 timezone.localtime(sale.sold_on).strftime('%d/%m/%y'),
                 status_text
             ])
