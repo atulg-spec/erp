@@ -18,10 +18,10 @@ class SalesAdmin(admin.ModelAdmin):
 
     fieldsets = (
         ('Sale Details', {
-            'fields': ('stock', 'quantity_sold')
+            'fields': ('stock', 'quantity_sold', 'total_amount', 'gross_profit', 'sold_on')
         }),
         ('Auto Calculated', {
-            'fields': ('total_amount', 'gross_profit', 'sold_on'),
+            # 'fields': ('total_amount', 'gross_profit', 'sold_on'),
             # 'classes': ('collapse',)
         }),
     )
