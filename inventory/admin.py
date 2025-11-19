@@ -22,13 +22,13 @@ class StockAdmin(admin.ModelAdmin):
     list_display = ('name', 'category_name', 'cost_price', 'selling_price', 'quantity', 'user', 'last_updated')
     list_filter = ('category__name', 'user', 'last_updated')
     search_fields = ('category__name',)
-    readonly_fields = ('last_updated',)
+    readonly_fields = ('cost_price', 'selling_price', 'quantity', 'user','last_updated',)
     date_hierarchy = 'last_updated'
     ordering = ('-last_updated',)
 
     fieldsets = (
         ("Stock Details", {
-            "fields": ("category", "name", "selling_price", "quantity")
+            "fields": ("category", "name", 'cost_price', 'selling_price', 'quantity', 'user')
         }),
     )
 

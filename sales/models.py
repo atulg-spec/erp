@@ -8,42 +8,25 @@ class Sales(models.Model):
     total_amount = models.FloatField(editable=False)
     gross_profit = models.FloatField(editable=False, default=0)
     sold_on = models.DateTimeField(auto_now_add=True)
+    is_verified = models.BooleanField(default=False)  # <-- VERY IMPORTANT
 
     def save(self, *args, **kwargs):
-        # Calculate total amount
+        # Auto fetch selling price from stock
         self.selling_price = self.stock.selling_price
-        self.total_amount = int(self.quantity_sold * self.selling_price)
 
-        # Calculate gross profit if cost_price is available
-        if self.stock and self.stock.cost_price is not None:
-            profit = (self.selling_price - self.stock.cost_price) * self.quantity_sold
-            self.gross_profit = int(profit)
+        # Calculate total amount
+        self.total_amount = self.quantity_sold * self.selling_price
+
+        # Calculate profit
+        if self.stock.cost_price is not None:
+            self.gross_profit = (self.selling_price - self.stock.cost_price) * self.quantity_sold
         else:
             self.gross_profit = 0
-
-        # Adjust stock quantity
-        if self.stock:
-            stock_item = self.stock
-
-            # If updating an existing sale
-            if self.pk:
-                old_sale = Sales.objects.get(pk=self.pk)
-                difference = self.quantity_sold - old_sale.quantity_sold
-                if stock_item.quantity - difference < 0:
-                    raise ValueError("Not enough stock to update this sale.")
-                stock_item.quantity -= difference
-            else:
-                # New sale
-                if stock_item.quantity < self.quantity_sold:
-                    raise ValueError("Not enough stock available.")
-                stock_item.quantity -= self.quantity_sold
-
-            stock_item.save()
 
         super().save(*args, **kwargs)
 
     def __str__(self):
-        return f"{self.stock} - {self.quantity_sold} pcs"
+        return f"{self.stock.name} - {self.quantity_sold} pcs"
 
     class Meta:
         verbose_name = "Sale"
