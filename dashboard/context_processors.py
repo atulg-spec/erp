@@ -39,7 +39,7 @@ def dashboard_stats(request):
     )['total'] or 0
     
     # Low Stock Items (less than 10 units)
-    low_stock_count = stock_base.filter(quantity__lt=0).count()
+    low_stock_count = stock_base.filter(quantity__lt=1).count()
     
     # Out of Stock Items
     out_of_stock = stock_base.filter(quantity=0).count()
