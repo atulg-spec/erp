@@ -298,7 +298,6 @@
                                     <th class="border-0">Product</th>
                                     <th class="border-0 text-center d-none d-md-table-cell">Qty</th>
                                     <th class="border-0 text-end">Amount</th>
-                                    <th class="border-0 text-end">Profit</th>
                                     <th class="border-0 text-center d-none d-lg-table-cell">Date</th>
                                 </tr>
                             </thead>
@@ -310,7 +309,6 @@
                                         <span class="badge bg-light text-dark">{{ sale.quantity_sold }}</span>
                                     </td>
                                     <td class="text-end">₹{{ sale.total_amount|floatformat:0 }}</td>
-                                    <td class="text-end text-success">₹{{ sale.gross_profit|floatformat:0 }}</td>
                                     <td class="text-center text-muted small d-none d-lg-table-cell">{{ sale.sold_on|date:"M d, H:i" }}</td>
                                 </tr>
                                 {% empty %}
