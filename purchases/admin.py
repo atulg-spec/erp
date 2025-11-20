@@ -2,44 +2,60 @@ from django.contrib import admin
 from .models import Purchase
 from django.utils.html import format_html
 from django.contrib import messages
+from django.db import transaction
+from inventory.models import Stock
 
 @admin.action(description="Mark selected purchases as Received and Update Stock")
 def mark_as_received(modeladmin, request, queryset):
     if not request.user.is_superuser:
         messages.error(request, "You don't have the permission to receive Purchases.")
         return
-    for purchase in queryset:
 
-        # Prevent double updates
-        if purchase.is_received:
-            continue
+    # Group purchases by Stock
+    purchase_groups = {}
+    for p in queryset:
+        if not p.is_received:
+            purchase_groups.setdefault(p.stock_item_id, []).append(p)
 
-        stock = purchase.stock_item
+    try:
+        with transaction.atomic():  # Lock everything safely
+            for stock_id, purchases in purchase_groups.items():
 
-        # Weighted Average Cost calculation
-        old_qty = stock.quantity
-        old_cost = stock.cost_price
+                # Lock stock row
+                stock = Stock.objects.select_for_update().get(id=stock_id)
 
-        new_qty = purchase.quantity_purchased
-        new_cost = purchase.cost_price_per_unit
+                old_qty = stock.quantity
+                old_cost = stock.cost_price
 
-        # Update total quantity FIRST
-        stock.quantity = old_qty + new_qty
+                total_new_qty = sum(p.quantity_purchased for p in purchases)
+                total_new_cost = sum(p.quantity_purchased * p.cost_price_per_unit for p in purchases)
 
-        # Avoid division by zero
-        if old_qty + new_qty > 0:
-            avg_cost = ((old_qty * old_cost) + (new_qty * new_cost)) / (old_qty + new_qty)
-            stock.cost_price = round(avg_cost, 2)
+                # Update quantity
+                stock.quantity = old_qty + total_new_qty
 
-        # Update selling price ONLY if given
-        if purchase.selling_price:
-            stock.selling_price = purchase.selling_price
+                # Weighted average cost
+                if stock.quantity > 0:
+                    new_avg_cost = ((old_qty * old_cost) + total_new_cost) / stock.quantity
+                    stock.cost_price = round(new_avg_cost, 2)
 
-        stock.save()
+                # Update selling price if provided in any purchase
+                for p in purchases:
+                    if p.selling_price:
+                        stock.selling_price = p.selling_price
 
-        # Mark purchase as received
-        purchase.is_received = True
-        purchase.save()
+                stock.save()
+
+                # Mark all purchases as received
+                for p in purchases:
+                    p.is_received = True
+                    p.save()
+
+    except Exception as e:
+        messages.error(request, f"Error updating stock: {e}")
+        return
+
+    messages.success(request, "Selected purchases marked as received and stock updated successfully.")
+
 
 
 @admin.register(Purchase)
