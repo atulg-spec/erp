@@ -20,8 +20,8 @@ class CategoryAdmin(admin.ModelAdmin):
 @admin.register(Stock)
 class StockAdmin(admin.ModelAdmin):
     list_display = ('name', 'quantity', 'selling_price', 'category_name', 'cost_price', 'user', 'last_updated')
-    list_filter = ('category__name', 'user', 'last_updated')
-    search_fields = ('category__name',)
+    list_filter = ('category__name', 'user', 'last_updated', 'last_updated')
+    search_fields = ('category__name','name')
     readonly_fields = ('cost_price', 'selling_price', 'quantity', 'user','last_updated',)
     date_hierarchy = 'last_updated'
     ordering = ('-last_updated',)

@@ -6,6 +6,8 @@ from django.http import HttpResponse
 from .reports import generate_sales_report
 from datetime import datetime
 from django.utils import timezone
+from django.db import transaction
+from inventory.models import Stock
 
 def get_local_date(dt):
     """Convert datetime to Asia/Kolkata local date."""
@@ -19,27 +21,46 @@ def verify_sale(modeladmin, request, queryset):
         return
 
     verified_count = 0
+
+    # Group sales by product stock
+    sales_grouped = {}
     for sale in queryset:
-        if sale.is_verified:
-            continue
+        if not sale.is_verified:
+            sales_grouped.setdefault(sale.stock_id, []).append(sale)
 
-        stock = sale.stock
+    try:
+        with transaction.atomic():  # Lock the whole process
+            for stock_id, sales_list in sales_grouped.items():
 
-        if stock.quantity < sale.quantity_sold:
-            continue
+                # Lock the stock row
+                stock = Stock.objects.select_for_update().get(id=stock_id)
 
-        stock.quantity -= sale.quantity_sold
-        stock.save()
+                # Calculate total qty required
+                total_required = sum(s.quantity_sold for s in sales_list)
 
-        sale.is_verified = True
-        sale.save()
-        verified_count += 1
+                # If not enough stock, skip all sales of this product
+                if stock.quantity < total_required:
+                    continue
+
+                # Deduct stock
+                stock.quantity -= total_required
+                stock.save()
+
+                # Mark all sales as verified
+                for sale in sales_list:
+                    sale.is_verified = True
+                    sale.save()
+
+                verified_count += len(sales_list)
+
+    except Exception as e:
+        messages.error(request, f"Error verifying sales: {e}")
+        return
 
     if verified_count > 0:
         messages.success(request, f"Successfully verified {verified_count} sales.")
     else:
         messages.warning(request, "No sales were verified.")
-
 
 
 @admin.action(description="📊 Download Sales Report")
@@ -112,7 +133,7 @@ class SalesAdmin(admin.ModelAdmin):
         'is_verified_display'
     )
     list_filter = ('sold_on', 'stock__category', 'is_verified', 'stock')
-    search_fields = ('stock__category__name', 'stock__sizes', 'stock__name')
+    search_fields = ('stock__name',)
     readonly_fields = ('total_amount', 'gross_profit', 'sold_on')
     actions = [verify_sale, download_sales_report]
     
