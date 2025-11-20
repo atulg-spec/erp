@@ -79,7 +79,7 @@ class PurchaseAdmin(admin.ModelAdmin):
             "fields": ("created_at", "last_updated"),
         }),
     )
-
+    search_fields = ('stock_item__name',)
     actions = [mark_as_received]
 
 
