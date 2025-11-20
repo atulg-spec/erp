@@ -60,7 +60,7 @@ def mark_as_received(modeladmin, request, queryset):
 
 @admin.register(Purchase)
 class PurchaseAdmin(admin.ModelAdmin):
-    list_display = ("stock_item", "quantity_purchased", "cost_price_per_unit", 'total_cost',
+    list_display = ("stock_item", "quantity_purchased", 'selling_price', "cost_price_per_unit", 'total_cost',
                     "is_received", "purchase_date")
     list_filter = ("is_received", "purchase_date", 'stock_item')
     readonly_fields = ('total_cost', 'created_at', 'last_updated')
