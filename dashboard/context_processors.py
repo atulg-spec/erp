@@ -39,7 +39,7 @@ def dashboard_stats(request):
     )['total'] or 0
     
     # Low Stock Items (less than 10 units)
-    low_stock_count = stock_base.filter(quantity__lt=1).count()
+    low_stock_count = stock_base.filter(quantity__lt=4).count()
     
     # Out of Stock Items
     out_of_stock = stock_base.filter(quantity=0).count()
@@ -52,6 +52,16 @@ def dashboard_stats(request):
         total=Sum('total_amount'),
         count=Count('id')
     )
+
+    # Unverified Sales
+    unverified_sales = sales_base.filter(
+        sold_on__date=today,
+        is_verified=False
+    ).aggregate(
+        total=Sum('total_amount'),
+        count=Count('id')
+    )
+
     
     # This Week's Sales
     week_sales = sales_base.filter(
@@ -113,7 +123,7 @@ def dashboard_stats(request):
     
     # Daily Sales Chart Data (Last 7 Days)
     daily_sales = []
-    for i in range(6, -1, -1):
+    for i in range(10, -1, -1):
         date = today - timedelta(days=i)
         sales = sales_base.filter(
             sold_on__date=date,
@@ -147,8 +157,8 @@ def dashboard_stats(request):
     
     # Stock Alert Items
     stock_alerts = stock_base.filter(
-        quantity__lt=1
-    ).order_by('quantity')[:10]
+        quantity__lt=4
+    ).order_by('quantity')
     
     # Profit Margin Analysis
     avg_profit_margin = sales_base.filter(
@@ -166,6 +176,7 @@ def dashboard_stats(request):
             'low_stock_count': low_stock_count,
             'out_of_stock': out_of_stock,
             'today_sales_total': round(today_sales['total'] or 0, 2),
+            'unverified_sales': round(unverified_sales['total'] or 0, 2),
             'today_sales_count': today_sales['count'] or 0,
             'week_sales_total': round(week_sales['total'] or 0, 2),
             'week_sales_profit': round(week_sales['profit'] or 0, 2),
