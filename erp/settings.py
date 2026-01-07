@@ -31,10 +31,11 @@ INSTALLED_APPS = [
     'inventory',
     'purchases',
     'sales',
-    'expenses',
     'income',
     'partners',
     'dashboard',
+    'purchase_returns',
+    'utility',
 ]
 
 MIDDLEWARE = [
@@ -120,6 +121,9 @@ USE_TZ = True
 
 STATIC_URL = 'static/'
 STATIC_ROOT = 'static'
+
+MEDIA_ROOT=os.path.join(BASE_DIR,'static/media/')
+MEDIA_URL="/media/"
 
 # STATICFILES_DIRS = (
 #     os.path.join(BASE_DIR, 'static'),

@@ -5,6 +5,7 @@ from datetime import timedelta
 from inventory.models import Stock
 from purchases.models import Purchase
 from sales.models import Sales
+from purchase_returns.models import PurchaseReturn
 
 def dashboard_stats(request):
     """
@@ -21,6 +22,7 @@ def dashboard_stats(request):
     stock_base = Stock.objects.all()
     sales_base = Sales.objects.all()
     purchase_base = Purchase.objects.all()
+    purchase_return_base = PurchaseReturn.objects.all()
     
     # Apply user filter only if not superuser
     if not request.user.is_superuser:
@@ -31,6 +33,10 @@ def dashboard_stats(request):
     # Total Stock Value
     total_stock_value = stock_base.aggregate(
         total=Sum(F('quantity') * F('cost_price'))
+    )['total'] or 0
+
+    total_purchase_return = purchase_return_base.aggregate(
+        total=Sum(F('quantity_returned') * F('stock_item__cost_price'))
     )['total'] or 0
     
     # Total Inventory Items
@@ -173,6 +179,7 @@ def dashboard_stats(request):
             'today': today,
             'total_stock_value': round(total_stock_value, 2),
             'total_items': total_items,
+            'total_purchase_return': total_purchase_return,
             'low_stock_count': low_stock_count,
             'out_of_stock': out_of_stock,
             'today_sales_total': round(today_sales['total'] or 0, 2),
