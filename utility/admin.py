@@ -8,11 +8,11 @@ from django.contrib import messages
 
 @admin.register(Bills)
 class BillsAdmin(admin.ModelAdmin):
-    list_display = ('date', 'file_link')
+    list_display = ('date', 'bill_amount', 'file_link')
     list_filter = ('date',)
     
     @admin.display(description="Bill File")
     def file_link(self, obj):
         if obj.file:
-            return format_html('<a href="{}" target="_blank">View File</a>', obj.file.url)
+            return format_html('<a href="{}" target="_blank">View</a>', obj.file.url)
         return "-"
