@@ -35,6 +35,11 @@ def dashboard_stats(request):
         total=Sum(F('quantity') * F('cost_price'))
     )['total'] or 0
 
+    total_purchases_value = purchase_base.aggregate(
+        total=Sum(F('quantity_purchased') * F('selling_price'))
+    )['total'] or 0
+
+
     total_purchase_return = purchase_return_base.aggregate(
         total=Sum(F('quantity_returned') * F('stock_item__cost_price'))
     )['total'] or 0
@@ -127,7 +132,7 @@ def dashboard_stats(request):
         total_value=Sum(F('quantity') * F('cost_price'))
     ).order_by('-total_value')
     
-    # Daily Sales Chart Data (Last 7 Days)
+    # Daily Sales Chart Data (Last 10 Days)
     daily_sales = []
     for i in range(10, -1, -1):
         date = today - timedelta(days=i)
@@ -178,6 +183,7 @@ def dashboard_stats(request):
         'dashboard': {
             'today': today,
             'total_stock_value': round(total_stock_value, 2),
+            'total_purchases_value': round(total_purchases_value, 2),
             'total_items': total_items,
             'total_purchase_return': total_purchase_return,
             'low_stock_count': low_stock_count,
