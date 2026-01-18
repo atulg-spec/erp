@@ -36,6 +36,7 @@ INSTALLED_APPS = [
     'dashboard',
     'purchase_returns',
     'utility',
+    'payments',
 ]
 
 MIDDLEWARE = [
