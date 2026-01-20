@@ -5,6 +5,7 @@ from django.urls import path, include, re_path
 from django.views.static import serve
 
 urlpatterns = [
+    path('', include('assistant.urls')),
     path('', admin.site.urls),
 ]
 
