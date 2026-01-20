@@ -134,7 +134,7 @@ class SalesAdmin(admin.ModelAdmin):
     )
     list_filter = ('sold_on', 'stock__category', 'is_verified', 'stock')
     search_fields = ('stock__name',)
-    readonly_fields = ('total_amount', 'gross_profit', 'sold_on')
+    readonly_fields = ('total_amount', 'gross_profit')
     actions = [verify_sale, download_sales_report]
     
     # Add date hierarchy for better date filtering
