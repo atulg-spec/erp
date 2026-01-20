@@ -1,15 +1,12 @@
 import google.generativeai as genai
-from django.conf import settings
 from inventory.models import Stock
 from sales.models import Sales
-from purchases.models import Purchase  # Adjust name if your app is 'purchases'
-from purchase_returns.models import PurchaseReturn  # Adjust name if your app is 'purchase_returns'
-from utility.models import Bills  # Adjust name if your app is 'bills'        
-
-genai.configure(api_key='AIzaSyBIiYHZWwxrnc_3iKLEvFaJFTetaG_wsx0')
+from purchases.models import Purchase
+from purchase_returns.models import PurchaseReturn
+from utility.models import Bills
+from assistant.models import API_Keys
 
 def get_erp_context():
-    # 1. Inventory Data (All fields)
     stocks = Stock.objects.all()
     inventory_list = []
     for s in stocks:
@@ -20,7 +17,6 @@ def get_erp_context():
         )
     inventory_data = "\n".join(inventory_list)
 
-    # 2. Sales Data (All fields including Profit and Date)
     sales = Sales.objects.all()
     sales_list = []
     for s in sales:
@@ -31,7 +27,6 @@ def get_erp_context():
         )
     sales_data = "\n".join(sales_list)
 
-    # 3. Purchase Data
     purchases = Purchase.objects.all()
     purchase_list = []
     for p in purchases:
@@ -42,14 +37,12 @@ def get_erp_context():
         )
     purchase_data = "\n".join(purchase_list)
 
-    # 4. Returns & Bills
     returns = PurchaseReturn.objects.all()
     return_list = [f"Item: {r.stock_item.name} | Qty: {r.quantity_returned} | Processed: {r.is_processed}" for r in returns]
     
     bills = Bills.objects.all()
     bill_list = [f"Bill Date: {b.date} | File: {b.file.name}" for b in bills]
 
-    # Combine everything into a massive context string
     return f"""
     You are the Store ERP AI Manager. Below is the COMPLETE store data:
 
@@ -75,12 +68,21 @@ def get_erp_context():
     - Be professional and helpful.
     """
 
-# Change this line in assistant/utils.py
+
+# 🔥 AUTO API KEY FAILOVER
 def ask_gemini(user_query):
-    # Use 'gemini-3-flash-preview' or 'gemini-2.5-flash'
-    model = genai.GenerativeModel('gemini-3-flash-preview') 
+    keys = API_Keys.objects.values_list('key', flat=True)
+
     context = get_erp_context()
-    
-    response = model.generate_content(f"{context}\n\nUser Question: {user_query}")
-    print(response.text)
-    return response.text
+
+    for key in keys:
+        try:
+            genai.configure(api_key=key)
+            model = genai.GenerativeModel('gemini-3-flash-preview')
+            response = model.generate_content(f"{context}\n\nUser Question: {user_query}")
+            return response.text
+        except Exception as e:
+            print(f"API key failed: {key} | Error: {e}")
+            continue
+
+    raise Exception("All API keys exhausted. No response received.")
