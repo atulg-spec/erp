@@ -1,5 +1,6 @@
 from django.db import models
 from inventory.models import Stock
+from django.utils import timezone
 
 class Sales(models.Model):
     stock = models.ForeignKey(Stock, on_delete=models.CASCADE, related_name='sales')
@@ -7,7 +8,7 @@ class Sales(models.Model):
     selling_price = models.FloatField(default=0)
     total_amount = models.FloatField(editable=False)
     gross_profit = models.FloatField(editable=False, default=0)
-    sold_on = models.DateTimeField(auto_now_add=True, editable=True)
+    sold_on = models.DateTimeField(default=timezone.now)
     is_verified = models.BooleanField(default=False)  # <-- VERY IMPORTANT
 
     def save(self, *args, **kwargs):
