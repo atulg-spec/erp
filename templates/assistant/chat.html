@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>ERP Assistant</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+    <h2>Store Assistant</h2>
+    <div id="chat-box" style="border:1px solid #ccc; height:300px; overflow-y:scroll; padding:10px;">
+        </div>
+    <input type="text" id="user-input" placeholder="Ask about inventory or sales...">
+    <button id="send-btn">Ask</button>
+
+    <script>
+        $('#send-btn').click(function() {
+            let msg = $('#user-input').val();
+            $('#chat-box').append('<p><strong>You:</strong> ' + msg + '</p>');
+            
+            $.post('', {
+                'message': msg,
+                'csrfmiddlewaretoken': '{{ csrf_token }}'
+            }, function(data) {
+                $('#chat-box').append('<p><strong>Gemini:</strong> ' + data.response + '</p>');
+            });
+            $('#user-input').val('');
+        });
+    </script>
+</body>
+</html>
