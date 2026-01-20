@@ -1,28 +1,463 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>ERP Assistant</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ERP AI Assistant</title>
+    <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Markdown rendering library -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <style>
+        /* Custom scrollbar */
+        #chat-box::-webkit-scrollbar { width: 8px; }
+        #chat-box::-webkit-scrollbar-track { background: #f1f5f9; border-radius: 4px; }
+        #chat-box::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        #chat-box::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+        
+        /* Typing animation */
+        .typing-dots span { animation: blink 1.4s infinite both; }
+        .typing-dots span:nth-child(2) { animation-delay: .2s; }
+        .typing-dots span:nth-child(3) { animation-delay: .4s; }
+        @keyframes blink { 0% { opacity: .2; } 20% { opacity: 1; } 100% { opacity: .2; } }
+        
+        /* Markdown styling */
+        .markdown-content {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            line-height: 1.6;
+        }
+        
+        /* Sales Summary Cards */
+        .summary-card {
+            background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 1.25rem;
+            margin: 1rem 0;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+        }
+        
+        .metric-card {
+            background: white;
+            border-radius: 10px;
+            padding: 1rem;
+            border-left: 4px solid #4f46e5;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+        
+        .metric-value {
+            font-size: 1.75rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin: 0.5rem 0;
+        }
+        
+        .metric-label {
+            color: #64748b;
+            font-size: 0.875rem;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        
+        .profit-positive {
+            color: #10b981;
+        }
+        
+        .profit-negative {
+            color: #ef4444;
+        }
+        
+        /* Data table styling */
+        .data-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            margin: 1.5rem 0;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
+            background: white;
+        }
+        
+        .data-table thead {
+            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+        }
+        
+        .data-table th {
+            color: white;
+            font-weight: 500;
+            text-align: left;
+            padding: 1rem 1.25rem;
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            border: none;
+        }
+        
+        .data-table th:first-child {
+            text-align: left;
+        }
+        
+        .data-table th:not(:first-child) {
+            text-align: right;
+        }
+        
+        .data-table td {
+            padding: 0.875rem 1.25rem;
+            border-bottom: 1px solid #f1f5f9;
+            color: #334155;
+        }
+        
+        .data-table td:first-child {
+            font-weight: 500;
+            color: #1e293b;
+        }
+        
+        .data-table td:not(:first-child) {
+            text-align: right;
+            font-family: 'SF Mono', 'Monaco', 'Inconsolata', monospace;
+            font-weight: 500;
+        }
+        
+        .data-table tr:last-child td {
+            border-bottom: none;
+        }
+        
+        .data-table tr:not(:last-child):hover td {
+            background: #f8fafc;
+        }
+        
+        /* Total row styling */
+        .data-table tr.total-row {
+            background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
+            font-weight: 700;
+        }
+        
+        .data-table tr.total-row td {
+            border-top: 2px solid #cbd5e1;
+            color: #1e293b;
+            font-size: 1.1em;
+        }
+        
+        .data-table tr.total-row td:last-child {
+            color: #059669;
+        }
+        
+        /* Note styling */
+        .note-box {
+            background: linear-gradient(135deg, #fff7ed 0%, #ffedd5 100%);
+            border-left: 4px solid #f97316;
+            border-radius: 8px;
+            padding: 1rem 1.25rem;
+            margin: 1.5rem 0;
+            font-size: 0.875rem;
+        }
+        
+        .note-box strong {
+            color: #ea580c;
+            font-weight: 600;
+        }
+        
+        /* Status indicator */
+        .status-indicator {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+        
+        .status-active {
+            background: #dcfce7;
+            color: #166534;
+        }
+        
+        /* Divider */
+        .section-divider {
+            height: 1px;
+            background: linear-gradient(90deg, transparent, #e2e8f0, transparent);
+            margin: 1.5rem 0;
+        }
+    </style>
 </head>
-<body>
-    <h2>Store Assistant</h2>
-    <div id="chat-box" style="border:1px solid #ccc; height:300px; overflow-y:scroll; padding:10px;">
+<body class="bg-gradient-to-br from-gray-50 to-gray-100 h-screen flex flex-col">
+
+    <header class="bg-white/90 backdrop-blur-sm border-b border-gray-200/50 px-6 py-4 flex items-center justify-between shadow-sm sticky top-0 z-10">
+        <div class="flex items-center gap-3">
+            <div class="bg-gradient-to-br from-indigo-500 to-blue-600 p-2.5 rounded-xl shadow-md">
+                <i data-lucide="bar-chart-3" class="text-white w-6 h-6"></i>
+            </div>
+            <div>
+                <h1 class="text-xl font-bold text-gray-800">Store Intelligence</h1>
+                <p class="text-xs flex items-center gap-1.5">
+                    <span class="status-indicator status-active">
+                        <i data-lucide="activity" class="w-3 h-3 mr-1"></i>
+                        AI Assistant Active
+                    </span>
+                </p>
+            </div>
         </div>
-    <input type="text" id="user-input" placeholder="Ask about inventory or sales...">
-    <button id="send-btn">Ask</button>
+        <div class="flex items-center gap-2">
+            <span class="text-xs text-gray-500 hidden md:block">{{request.user.first_name}}</span>
+            <button onclick="window.location.reload()" 
+                    class="text-gray-500 hover:text-indigo-600 hover:bg-gray-100 p-2 rounded-lg transition-all duration-200">
+                <i data-lucide="refresh-ccw" class="w-5 h-5"></i>
+            </button>
+        </div>
+    </header>
+
+    <main id="chat-box" class="flex-1 overflow-y-auto p-4 space-y-6 md:px-20 lg:px-64">
+        <div class="flex justify-start animate-fade-in">
+            <div class="bg-white border border-gray-200/60 shadow-sm text-gray-800 p-6 rounded-2xl rounded-tl-none max-w-[85%]">
+                <div class="flex items-center gap-3 mb-3">
+                    <div class="bg-gradient-to-br from-blue-100 to-indigo-100 p-2 rounded-lg">
+                        <i data-lucide="bot" class="text-indigo-600 w-5 h-5"></i>
+                    </div>
+                    <span class="font-medium text-gray-700">ERP Assistant</span>
+                </div>
+                <div class="markdown-content">
+                    <p class="text-gray-600 leading-relaxed">Hello {{request.user.first_name}} 👋 I'm your ERP Assistant. I have access to your inventory, sales, and financial data. How can I help you today?</p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="bg-white/90 backdrop-blur-sm border-t border-gray-200/50 p-4 md:px-20 lg:px-64">
+        <div class="relative flex items-center">
+            <input type="text" id="user-input" 
+                class="w-full p-4 pr-16 bg-white border border-gray-300/60 focus:border-indigo-300 rounded-2xl focus:ring-4 focus:ring-indigo-100 outline-none transition-all text-sm shadow-sm placeholder-gray-400"
+                placeholder="Ask about sales, inventory, profits, or business insights...">
+            
+            <button id="send-btn" 
+                class="absolute right-2 bg-gradient-to-r from-indigo-500 to-blue-600 text-white p-3 rounded-xl hover:from-indigo-600 hover:to-blue-700 transition-all duration-300 shadow-lg shadow-indigo-200 hover:shadow-indigo-300 active:scale-95">
+                <i data-lucide="send" class="w-5 h-5"></i>
+            </button>
+        </div>
+        <p class="text-xs text-gray-400 text-center mt-3 flex items-center justify-center gap-1">
+            <i data-lucide="shield" class="w-3 h-3"></i>
+            AI-powered business intelligence. Verify critical decisions.
+        </p>
+    </footer>
 
     <script>
-        $('#send-btn').click(function() {
-            let msg = $('#user-input').val();
-            $('#chat-box').append('<p><strong>You:</strong> ' + msg + '</p>');
+        // Initialize Icons
+        lucide.createIcons();
+
+        // Configure marked for safe rendering
+        marked.setOptions({
+            breaks: true,
+            gfm: true,
+            headerIds: false,
+            mangle: false,
+            sanitize: true
+        });
+
+        function processMarkdownToHTML(text) {
+            // First convert markdown to HTML
+            let html = marked.parse(text);
             
-            $.post('', {
-                'message': msg,
-                'csrfmiddlewaretoken': '{{ csrf_token }}'
-            }, function(data) {
-                $('#chat-box').append('<p><strong>Gemini:</strong> ' + data.response + '</p>');
-            });
+            // Enhance headers
+            html = html.replace(/###\s*\*\*(.*?)\*\*/g, 
+                '<div class="flex items-center gap-2 mt-6 mb-4"><div class="bg-gradient-to-r from-indigo-500 to-blue-600 w-1 h-6 rounded-full"></div><h3 class="text-lg font-bold text-gray-800">$1</h3></div>');
+            
+            // Convert metric lists to cards
+            const metricMatch = html.match(/\*\s*\*\*(.*?):\*\*\s*([^<\n]+)/g);
+            if (metricMatch && metricMatch.some(m => m.includes('Revenue') || m.includes('Profit') || m.includes('Items'))) {
+                let cardsHtml = '<div class="grid grid-cols-1 md:grid-cols-3 gap-4 my-6">';
+                
+                metricMatch.forEach(item => {
+                    const match = item.match(/\*\s*\*\*(.*?):\*\*\s*([^<\n]+)/);
+                    if (match) {
+                        const label = match[1].trim();
+                        let value = match[2].trim();
+                        let valueClass = '';
+                        
+                        // Check if it's profit with negative value
+                        if (label.includes('Profit')) {
+                            const numValue = parseFloat(value.replace(/[^\d.-]/g, ''));
+                            valueClass = numValue < 0 ? 'profit-negative' : 'profit-positive';
+                        }
+                        
+                        // Format number with commas
+                        const numMatch = value.match(/([\d,.]+)/);
+                        if (numMatch) {
+                            const num = parseFloat(numMatch[1].replace(/,/g, ''));
+                            if (!isNaN(num)) {
+                                value = value.replace(numMatch[1], num.toLocaleString('en-IN'));
+                            }
+                        }
+                        
+                        cardsHtml += `
+                            <div class="metric-card">
+                                <div class="metric-label">${label}</div>
+                                <div class="metric-value ${valueClass}">${value}</div>
+                            </div>
+                        `;
+                    }
+                });
+                
+                cardsHtml += '</div>';
+                html = html.replace(/\* \*\*.*?:\*\* [^<\n]+/g, '').replace(/\* \*\*.*?:\*\* [^<\n]+<br>/g, '') + cardsHtml;
+            }
+            
+            // Convert markdown tables to styled tables
+            const tableMatch = html.match(/<table>[\s\S]*?<\/table>/g);
+            if (tableMatch) {
+                tableMatch.forEach(table => {
+                    // Add TOTAL row styling
+                    let styledTable = table
+                        .replace(/<table>/, '<div class="overflow-x-auto rounded-xl border border-gray-200"><table class="data-table">')
+                        .replace(/<\/table>/, '</table></div>')
+                        .replace(/<th>/g, '<th class="px-4 py-3">')
+                        .replace(/<td>/g, '<td class="px-4 py-2">')
+                        .replace(/<tr>\s*<td[^>]*>\s*TOTAL\s*<\/td>/gi, '<tr class="total-row"><td class="font-bold">TOTAL</td>');
+                    
+                    html = html.replace(table, styledTable);
+                });
+            }
+            
+            // Style note sections
+            html = html.replace(/\(Note:(.*?)\)/g, 
+                '<div class="note-box"><div class="flex items-start gap-2"><i data-lucide="info" class="w-4 h-4 text-orange-500 mt-0.5"></i><div><strong>Note:</strong>$1</div></div></div>');
+            
+            // Add section dividers
+            html = html.replace(/---/g, '<div class="section-divider"></div>');
+            
+            // Style bold text
+            html = html.replace(/\*\*(.*?)\*\*/g, '<strong class="font-semibold text-gray-800">$1</strong>');
+            
+            return `<div class="markdown-content space-y-4">${html}</div>`;
+        }
+
+        function appendMessage(role, text) {
+            const isUser = role === 'user';
+            let msgHtml = '';
+            
+            if (isUser) {
+                msgHtml = `
+                    <div class="flex justify-end animate-slide-in-right">
+                        <div class="bg-gradient-to-r from-indigo-500 to-blue-600 text-white p-4 rounded-2xl rounded-tr-none shadow-md max-w-[85%]">
+                            <p class="text-sm leading-relaxed font-medium">${text}</p>
+                        </div>
+                    </div>
+                `;
+            } else {
+                const formattedText = processMarkdownToHTML(text);
+                msgHtml = `
+                    <div class="flex justify-start animate-slide-in-left">
+                        <div class="bg-white border border-gray-200/60 shadow-sm text-gray-800 p-6 rounded-2xl rounded-tl-none max-w-[85%]">
+                            <div class="flex items-center gap-3 mb-4">
+                                <div class="bg-gradient-to-br from-blue-100 to-indigo-100 p-2 rounded-lg">
+                                    <i data-lucide="bot" class="text-indigo-600 w-5 h-5"></i>
+                                </div>
+                                <span class="font-medium text-gray-700">Store Intelligence</span>
+                            </div>
+                            ${formattedText}
+                        </div>
+                    </div>
+                `;
+            }
+            
+            $('#chat-box').append(msgHtml);
+            
+            // Re-initialize icons in the new content
+            lucide.createIcons();
+            
+            $('#chat-box').scrollTop($('#chat-box')[0].scrollHeight);
+        }
+
+        function showTyping() {
+            const typingHtml = `
+                <div id="loading" class="flex justify-start animate-pulse">
+                    <div class="bg-white border border-gray-200/60 shadow-sm p-4 rounded-2xl rounded-tl-none max-w-[85%]">
+                        <div class="flex items-center gap-3">
+                            <div class="bg-gradient-to-br from-blue-100 to-indigo-100 p-2 rounded-lg">
+                                <i data-lucide="bot" class="text-indigo-600 w-5 h-5"></i>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <div class="typing-dots flex gap-1">
+                                    <span class="w-2 h-2 bg-gray-400 rounded-full"></span>
+                                    <span class="w-2 h-2 bg-gray-400 rounded-full"></span>
+                                    <span class="w-2 h-2 bg-gray-400 rounded-full"></span>
+                                </div>
+                                <span class="text-sm text-gray-500">Analyzing data...</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            $('#chat-box').append(typingHtml);
+            $('#chat-box').scrollTop($('#chat-box')[0].scrollHeight);
+        }
+
+        function sendMessage() {
+            let msg = $('#user-input').val().trim();
+            if (!msg) return;
+
+            // Add user message
+            appendMessage('user', msg);
             $('#user-input').val('');
+            
+            // Show loading
+            showTyping();
+
+            // AJAX Request
+            $.ajax({
+                type: 'POST',
+                url: '',
+                data: {
+                    'message': msg,
+                    'csrfmiddlewaretoken': '{{ csrf_token }}'
+                },
+                success: function(data) {
+                    $('#loading').remove();
+                    appendMessage('bot', data.response);
+                },
+                error: function() {
+                    $('#loading').remove();
+                    appendMessage('bot', '### **System Error**\n\n⚠️ Sorry, I encountered an error connecting to the server. Please try again in a moment.');
+                }
+            });
+        }
+
+        // Click event
+        $('#send-btn').click(sendMessage);
+
+        // Enter key event
+        $('#user-input').keypress(function(e) {
+            if(e.which == 13) sendMessage();
+        });
+
+        // Add animation styles
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes fadeIn {
+                from { opacity: 0; transform: translateY(10px); }
+                to { opacity: 1; transform: translateY(0); }
+            }
+            @keyframes slideInLeft {
+                from { opacity: 0; transform: translateX(-20px); }
+                to { opacity: 1; transform: translateX(0); }
+            }
+            @keyframes slideInRight {
+                from { opacity: 0; transform: translateX(20px); }
+                to { opacity: 1; transform: translateX(0); }
+            }
+            .animate-fade-in { animation: fadeIn 0.3s ease-out; }
+            .animate-slide-in-left { animation: slideInLeft 0.3s ease-out; }
+            .animate-slide-in-right { animation: slideInRight 0.3s ease-out; }
+        `;
+        document.head.appendChild(style);
+
+        // Focus input on load
+        $(document).ready(function() {
+            $('#user-input').focus();
         });
     </script>
 </body>
