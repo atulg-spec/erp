@@ -36,7 +36,7 @@ def mark_as_received(modeladmin, request, queryset):
                 # Weighted average cost
                 if stock.quantity > 0:
                     new_avg_cost = ((old_qty * old_cost) + total_new_cost) / stock.quantity
-                    stock.cost_price = p.cost_price_per_unit
+                    stock.cost_price = p.selling_price
                     stock.selling_price = p.selling_price
 
                 # Update selling price if provided in any purchase
