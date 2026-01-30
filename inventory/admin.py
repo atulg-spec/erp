@@ -3,18 +3,18 @@ from django.utils.html import format_html
 from .models import Category, Stock
 
 
-@admin.register(Category)
-class CategoryAdmin(admin.ModelAdmin):
-    list_display = ('name',)
-    search_fields = ('name',)
-    list_display_links = ('name',)
-    ordering = ('name',)
+# @admin.register(Category)
+# class CategoryAdmin(admin.ModelAdmin):
+#     list_display = ('name',)
+#     search_fields = ('name',)
+#     list_display_links = ('name',)
+#     ordering = ('name',)
 
-    fieldsets = (
-        ("Category Details", {
-            "fields": ("name",)
-        }),
-    )
+#     fieldsets = (
+#         ("Category Details", {
+#             "fields": ("name",)
+#         }),
+#     )
 
 
 @admin.register(Stock)
