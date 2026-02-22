@@ -50,7 +50,7 @@ def process_return(modeladmin, request, queryset):
 @admin.register(PurchaseReturn)
 class PurchaseReturnAdmin(admin.ModelAdmin):
     form = PurchaseReturnForm
-    list_display = ('stock_item', 'quantity_returned', 'is_processed', 'created_at')
+    list_display = ('stock_item', 'quantity_returned', 'selling_price', 'total_amount', 'is_processed', 'created_at')
     list_filter = ('is_processed', 'created_at')
     search_fields = ('stock_item__name',)
 
@@ -60,5 +60,16 @@ class PurchaseReturnAdmin(admin.ModelAdmin):
             'description': 'Stock information with auto-calculated fields'
         }),
     )
+
+    # ✅ Show Selling Price
+    def selling_price(self, obj):
+        return obj.stock_item.selling_price
+    selling_price.short_description = "Selling Price"
+    selling_price.admin_order_field = 'stock_item__selling_price'
+
+    # ✅ Show Total (Qty × Selling Price)
+    def total_amount(self, obj):
+        return obj.quantity_returned * obj.stock_item.selling_price
+    total_amount.short_description = "Total Amount"
 
     actions = [process_return]
